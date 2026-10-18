@@ -5,7 +5,9 @@
 function renderWeeks(){
   var el=$('#panel-weeks'),ws=S.weekStart;
   var days=[0,1,2,3,4,5,6].map(function(i){return addDays(ws,i);});
-  var all=sessionsList(S.sessions);
+  /* with nothing logged yet, show made-up sessions so the layout is visible; real ones replace them at once */
+  var all=sessionsList(S.sessions),demo=!all.length;
+  if(demo)all=demoSessions();
   var inWeek=all.filter(function(s){return s.date>=ws&&s.date<=days[6];});
   var pws=addDays(ws,-7);
   var prev=all.filter(function(s){return s.date>=pws&&s.date<ws;});
@@ -18,7 +20,7 @@ function renderWeeks(){
     var ss=inWeek.filter(function(s){return s.date===dd;});
     var inner='';
     if(ss.length){
-      inner=ss.map(function(s){return '<button type="button" class="chip" data-act="open" data-date="'+dd+'" data-type="'+s.type+'"><i class="dot" style="background:var(--c-'+s.type+')"></i>'+esc(nameFor(s.type,s))+'</button>';}).join('');
+      inner=ss.map(function(s){return '<button type="button" class="chip"'+(demo?' disabled':' data-act="open" data-date="'+dd+'" data-type="'+s.type+'"')+'><i class="dot" style="background:var(--c-'+s.type+')"></i>'+esc(nameFor(s.type,s))+'</button>';}).join('');
     }else if(plannedFor(i)){
       inner='<button type="button" class="chip plan" data-act="open" data-date="'+dd+'" data-type="'+plannedFor(i)+'">'+esc(nameFor(plannedFor(i)))+'</button>';
     }else inner='<span class="rest">Rest</span>';
@@ -33,11 +35,12 @@ function renderWeeks(){
     }).join('');
     return '<article class="card wsess"><header><i class="dot" style="background:var(--c-'+s.type+');width:14px;height:14px"></i>'+
       '<h3>'+esc(nameFor(s.type,s))+'</h3><span class="meta">'+lbl(s.date,true)+' · '+sessSets(s)+' sets · '+fmtN(Math.round(dv(sessVol(s))))+' '+UNIT+'</span>'+
-      '<button type="button" class="btn small open" data-act="open" data-date="'+s.date+'" data-type="'+s.type+'">Open</button></header>'+
+      (demo?'':'<button type="button" class="btn small open" data-act="open" data-date="'+s.date+'" data-type="'+s.type+'">Open</button>')+'</header>'+
       (rows?'<div class="scroll"><table><thead><tr><th>Exercise</th><th class="n">Sets</th><th class="n">Top set</th><th class="n">Est. 1RM</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+
       (s.notes&&s.notes.trim()?'<div class="note">'+esc(s.notes)+'</div>':'')+'</article>';
   }).join('');
   el.innerHTML=
+    (demo?'<div class="demo">Example preview. These sessions are made up so you can see the layout. Your own sessions replace them as soon as you log one.</div>':'')+
     '<div class="nav"><span class="lbl">'+lbl(ws)+' – '+lbl(days[6])+' '+parse(days[6]).getFullYear()+' · Wk '+isoWeek(ws)+(who()?' · '+esc(who()):'')+'</span>'+
       '<button type="button" class="btn small" data-act="wk-prev" aria-label="Previous week">←</button>'+
       '<button type="button" class="btn small" data-act="wk-now">This week</button>'+

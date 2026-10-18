@@ -70,6 +70,7 @@ function renderGuide(){
     ],true)+
     guideSection('Weeks',[
       'The arrows move between weeks and <b>This week</b> jumps back to now.',
+      'Until you log a session you see an example week with made-up sessions. It is replaced by your own as soon as you log one.',
       'A solid session is one you logged. A dashed one is planned for that day: tap it to start.',
       'The totals at the top compare your volume with the week before. Volume is weight × reps added up over every set.'
     ])+

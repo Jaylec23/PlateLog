@@ -84,6 +84,9 @@ DRIVERS = {}
 DRIVERS['local_a'] = r'''
 check('first run shows the split hint',!!$('.hint'),'no hint');
 check('Log shows the 5 upper/lower days',txt('.seg button b')==='Upper A,Lower A,Upper B,Lower B,Extra day',txt('.seg button b'));
+tab('weeks');await sleep(100);
+check('Weeks shows an example before anything is logged',!!$('#panel-weeks .demo')&&$$('#panel-weeks .wsess').length>0,'');
+check('example sessions are not clickable',$$('#panel-weeks [data-act="open"]').filter(function(b){return b.classList.contains('open')||(b.classList.contains('chip')&&!b.classList.contains('plan'));}).length===0,'');
 tab('plan');await sleep(100);
 check('split dropdown has 4 splits + custom',$$('#splitsel option').length===5,String($$('#splitsel option').length));
 check('days start collapsed',$$('.plancard').length===5&&$$('.daybody').length===0,'');
@@ -114,6 +117,7 @@ check('PPL days',txt('.plancard .dname b')==='Push,Pull,Legs',txt('.plancard .dn
 tab('log');await sleep(100);
 check('Log follows the new split',txt('.seg button b')==='Push,Pull,Legs',txt('.seg button b'));
 tab('weeks');await sleep(100);
+check('Weeks example is gone once real data exists',!$('#panel-weeks .demo'),'');
 check('old session keeps its day name',($('.wsess h3')||{}).textContent==='Upper A',($('.wsess h3')||{}).textContent);
 tab('year');await sleep(100);
 check('year legend uses the old name',/Upper A/.test(txt('.legend')),txt('.legend'));
