@@ -1,0 +1,23 @@
+/* Plate Log: Year tab and chart tooltip. See docs/ARCHITECTURE.md for the file map. */
+/* year */
+.demo{background:var(--warn-bg);color:var(--warn-ink);padding:8px 12px;border-radius:4px;font-size:14px;margin-bottom:14px}
+.block{padding:14px;margin-bottom:14px}
+.block .bhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin:6px 0 4px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+svg text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+svg .endlbl{fill:var(--ink);font-size:12px;font-weight:500}
+.pt .xh{opacity:0;stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+.pt:hover .xh{opacity:1}
+.pt .big{opacity:0}
+.pt:hover .big{opacity:1}
+details{margin-top:8px}
+summary{cursor:pointer;font-size:13px;color:var(--ink2);padding:4px 0}
+.yearsel{display:flex;align-items:center;gap:8px}
+select.field{width:auto;max-width:100%}
+
+
+/* tooltip */
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--bg);font-family:var(--f-mono);font-size:12px;
+  padding:6px 9px;border-radius:4px;white-space:pre-line;max-width:260px;left:0;top:0}

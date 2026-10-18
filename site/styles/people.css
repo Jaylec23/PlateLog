@@ -1,0 +1,13 @@
+/* Plate Log: people bar and add-exercise row. See docs/ARCHITECTURE.md for the file map. */
+/* people */
+.people{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;min-height:36px}
+.pchip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:600;font-size:14px;min-height:36px}
+.pchip:hover{border-color:var(--ink2)}
+.pchip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pchip.add{background:none;border-style:dashed;color:var(--ink2)}
+.people .field{width:160px;min-height:36px;padding:4px 10px}
+.plink{background:none;border:0;cursor:pointer;color:var(--muted);font-size:13px;text-decoration:underline;padding:4px}
+.plink:hover{color:var(--ink)}
+.addex{flex-wrap:wrap;align-items:center}
+.addlbl{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap}
+

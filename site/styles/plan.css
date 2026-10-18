@@ -1,0 +1,44 @@
+/* Plate Log: Plan tab (split picker, day cards, exercise search). See docs/ARCHITECTURE.md for the file map. */
+/* plan */
+/* split picker and day accordions */
+.splitpick{padding:14px;margin-bottom:12px;display:grid;gap:8px}
+.splitpick .eyebrow{display:block}
+.splitpick select{width:100%;font-weight:600;font-size:16px}
+.sblurb{color:var(--ink2);font-size:14px;margin:0}
+.daystack{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.plancard{padding:0;overflow:hidden}
+.dayhd{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:12px 14px;cursor:pointer;text-align:left;min-height:52px}
+.dayhd:hover{background:var(--bg)}
+.dayhd .dname{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.dayhd .dname b{font-family:var(--f-display);font-size:22px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;line-height:1.1}
+.dsub{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.chev{color:var(--muted);font-size:14px;transition:transform .15s}
+.dayhd[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.daybody{padding:2px 14px 14px;border-top:1px solid var(--line2)}
+.dedit{display:flex;gap:10px;flex-wrap:wrap;padding:12px 0 8px}
+.dedit label{display:flex;flex-direction:column;gap:2px;font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;flex:1 1 140px;min-width:0}
+.prow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line2)}
+.pcol{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.prow .pn{font-weight:600}
+.ptarget{font-family:var(--f-mono);font-size:12px;color:var(--muted);white-space:nowrap;padding-left:2px}
+.prow .pbtns{display:flex;gap:0;flex:none}
+.prow{padding:8px 0}
+.pnone{color:var(--muted);font-size:14px;padding:10px 0}
+.exadd{margin-top:12px}
+.mgchips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.mgchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer;min-height:30px}
+.mgchip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.exres{list-style:none;margin:0;padding:0;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:4px;background:var(--input)}
+.exres li{border-bottom:1px solid var(--line2)}
+.exres li:last-child{border-bottom:0}
+.exopt{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;padding:8px 12px;cursor:pointer;min-height:44px}
+.exopt:hover{background:var(--bg)}
+.exopt .g{font-family:var(--f-mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.exres .none{padding:10px 12px;color:var(--muted);font-size:14px}
+.hint{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px 12px;margin-bottom:14px;font-size:14px;color:var(--ink2)}
+.rules{padding:14px 18px 14px 32px;margin:0 0 14px}
+.rules li{margin:6px 0}
+.empty{padding:22px;text-align:center;color:var(--muted)}
+
+.tedit .reps{display:flex;align-items:flex-end;gap:6px}
+.pfoot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}

@@ -1,0 +1,20 @@
+
+/* account bar + sign-in screen */
+.acct{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.acctmail{font-family:var(--f-mono);font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.authwrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(24px,env(safe-area-inset-top,0px)) 16px 40px}
+.authcard{width:100%;max-width:380px;margin-top:6vh}
+.authh{font-family:var(--f-display);font-weight:800;font-size:44px;letter-spacing:.03em;text-transform:uppercase;line-height:1}
+.authsub{color:var(--ink2);margin:8px 0 18px}
+.authtabs{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-bottom:14px}
+.authtabs button{flex:1;background:var(--surface);border:0;padding:10px;font-weight:600;cursor:pointer;color:var(--muted)}
+.authtabs button.on{background:var(--ink);color:var(--bg)}
+.authcard form{display:grid;gap:12px}
+.authcard label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--ink2)}
+.authcard input{background:var(--input);border:1px solid var(--line);border-radius:4px;padding:10px 12px;font-size:16px;min-height:44px;width:100%}
+.authgo{width:100%;min-height:44px}
+.authmsg{min-height:20px;margin-top:10px;font-size:13px;color:var(--ink2)}
+.authmsg.err{color:var(--c-upperA)} .authmsg.ok{color:var(--ok)}
+.authlinks{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px}
+.authlinks button{background:none;border:0;color:var(--ink2);text-decoration:underline;cursor:pointer;padding:6px 0;font-size:13px}
+.authnote{font-size:12px;color:var(--muted);margin-top:14px}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Plate Log</title>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#14191C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plate Log">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/log.css">
+<link rel="stylesheet" href="styles/weeks.css">
+<link rel="stylesheet" href="styles/year.css">
+<link rel="stylesheet" href="styles/plan.css">
+<link rel="stylesheet" href="styles/people.css">
+<link rel="stylesheet" href="styles/auth.css">
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg width="64" height="34" viewBox="0 0 64 34" role="img" aria-label="Barbell with four plates">
+        <rect x="0" y="15" width="64" height="4" rx="1" style="fill:var(--muted)"/>
+        <rect x="6" y="1" width="6" height="32" rx="1.5" style="fill:var(--c-upperA)"/>
+        <rect x="14" y="4" width="6" height="26" rx="1.5" style="fill:var(--c-lowerA)"/>
+        <rect x="22" y="8" width="5" height="18" rx="1.5" style="fill:var(--c-upperB)"/>
+        <rect x="29" y="11" width="5" height="12" rx="1.5" style="fill:var(--c-lowerB)"/>
+      </svg>
+      <div>
+        <h1>Plate Log</h1>
+        <div class="sub">Upper / Lower · weights in kg</div>
+      </div>
+    </div>
+    <div class="status" id="status" role="status"><i></i><span id="statusTxt">Connecting…</span></div>
+  </header>
+
+  <div class="people" id="people" aria-label="People"></div>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-log" data-tab="log" aria-controls="panel-log">Log</button>
+    <button class="tab" role="tab" id="tab-weeks" data-tab="weeks" aria-controls="panel-weeks">Weeks</button>
+    <button class="tab" role="tab" id="tab-year" data-tab="year" aria-controls="panel-year">Year</button>
+    <button class="tab" role="tab" id="tab-plan" data-tab="plan" aria-controls="panel-plan">Plan</button>
+  </nav>
+
+  <section class="panel" id="panel-log" role="tabpanel" aria-labelledby="tab-log"></section>
+  <section class="panel" id="panel-weeks" role="tabpanel" aria-labelledby="tab-weeks" hidden></section>
+  <section class="panel" id="panel-year" role="tabpanel" aria-labelledby="tab-year" hidden></section>
+  <section class="panel" id="panel-plan" role="tabpanel" aria-labelledby="tab-plan" hidden></section>
+
+  <div class="foot">
+    <button class="btn small" id="exportBtn" type="button">Export all sets (CSV)</button>
+    <span id="msg" role="status"></span>
+  </div>
+</div>
+<datalist id="exlist"></datalist>
+<div id="tip" hidden></div>
+
+
+<script src="config.js"></script>
+<script src="js/cloud.js"></script>
+<script src="js/data.js"></script>
+<script src="js/util.js"></script>
+<script src="js/state.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/log.js"></script>
+<script src="js/weeks.js"></script>
+<script src="js/year.js"></script>
+<script src="js/people.js"></script>
+<script src="js/plan.js"></script>
+<script src="js/export.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
