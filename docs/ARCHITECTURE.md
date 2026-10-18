@@ -36,14 +36,14 @@ Rules that follow from this:
 | `js/util.js` | Pure helpers: dates, escaping, `e1rm`, `hasContent`, `sessionsList`, `keyOf`, `parseTarget`, and the weight-unit helpers (`UNIT`, `dv`, `inW`, `outW`, `fw`). |
 | `js/state.js` | The `S` state object, config normalising (`normCfg`, `normPlan`), plan helpers (`getPlan`, `dayOf`, `nameFor`, `stampLabels`), `setStatus` (also mirrors the text into the menu), `say`. `normCfg` also restores the saved unit. |
 | `js/storage.js` | `startStorage` (picks account or device), `onData`, debounced saves (`scheduleSave`, `scheduleCfg`, `commit`, `flush`), `deleteSessions`. |
-| `js/log.js` | Log tab: drafts (`loadDraft`, `blankFrom`, `lastSession`), `renderLog`, set entry, per-session target editor. |
+| `js/log.js` | Log tab: drafts (`loadDraft`, `blankFrom`, `lastSession`), `renderLog`, set entry, per-session target editor. Each exercise is a drop-down; which ones are open lives in `S.openEx` and resets when the session changes. |
 | `js/weeks.js` | Weeks tab. |
 | `js/year.js` | Year tab charts (heatmap, weekly volume, e1RM line), records, tooltip, example data. |
 | `js/people.js` | People bar: add, rename, remove, switch person. |
 | `js/plan.js` | Plan tab: split dropdown, day accordions, exercise search, custom days. |
 | `js/guide.js` | Guide tab: plain how-to text (no saved data). |
 | `js/export.js` | CSV export, in the selected unit. |
-| `js/main.js` | `setTab`, `renderActive`, event wiring, start-up, and the top-right account menu (`toggleMenu`) with the kg/lb switch (`setUnit`). |
+| `js/main.js` | `setTab`, `renderActive`, event wiring, start-up, the top-right account menu (`toggleMenu`) and the kg/lb switch under it (`setUnit`). |
 | `styles/base.css` | Colour tokens (light/dark), layout, header, tabs, shared controls. |
 | `styles/log.css` `weeks.css` `year.css` `plan.css` `people.css` `guide.css` | Styles for the matching area. Each holds its own phone (`max-width:560px`) layout. |
 | `styles/auth.css` | Sign-in screen and the top-right account menu / status dot. |

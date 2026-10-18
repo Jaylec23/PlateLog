@@ -42,3 +42,12 @@
   .acctbtn[data-s="ok"]::after{background:var(--ok)}
   .acctbtn[data-s="err"]::after{background:var(--c-upperA)}
 }
+
+/* kg | lb switch sits directly under the account button */
+.acctcol{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.topright{align-items:flex-start}
+.topright .status{height:40px}
+.unitseg.mini button{min-height:30px;min-width:46px;padding:2px 10px;font-size:13px}
+/* the menu opens below the kg | lb switch, not over it */
+.acctcol{position:relative}
+.acctwrap{position:static}

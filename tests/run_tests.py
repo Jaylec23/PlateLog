@@ -210,7 +210,9 @@ click($('#acctBtn'));await sleep(50);
 check('account menu opens',$('#acctMenu').hidden===false&&$('#acctBtn').getAttribute('aria-expanded')==='true','');
 check('menu has privacy link',!!$('#acctMenu a[href="privacy.html"]'),'');
 check('menu says the log is on this device',/device/.test($('#acct').textContent),$('#acct').textContent);
-click($('#acctMenu [data-unit="lb"]'));await sleep(300);
+check('kg|lb switch is on the page, outside the menu',!$('#acctMenu').contains($('.unitseg'))&&$('.unitseg').getBoundingClientRect().height>20,String($('.unitseg').getBoundingClientRect().height));
+check('menu itself no longer holds the unit switch',!$('#acctMenu [data-unit]'),'');
+click($('.unitseg [data-unit="lb"]'));await sleep(300);
 check('switches to lb',$('.sethead span:nth-child(2)').textContent==='lb',$('.sethead span:nth-child(2)').textContent);
 check('100 kg shows as 220.46 lb',$('#w-0-0').value==='220.46',$('#w-0-0').value);
 check('stored value untouched',setW(0)===100,String(setW(0)));
@@ -239,9 +241,9 @@ tab('log');await sleep(100);
 DRIVERS['units2'] = r"""
 check('lb remembered after reload',$('.sethead span:nth-child(2)').textContent==='lb',$('.sethead span:nth-child(2)').textContent);
 check('value still shows in lb',$('#w-0-1').value==='135',$('#w-0-1').value);
-click($('#acctBtn'));click($('#acctMenu [data-unit="kg"]'));await sleep(300);
+click($('.unitseg [data-unit="kg"]'));await sleep(300);
 check('back to kg',$('#w-0-0').value==='100'&&$('#w-0-1').value==='61.235',$('#w-0-0').value+' / '+$('#w-0-1').value);
-check('kg pressed state shown',$('#acctMenu [data-unit="kg"]').getAttribute('aria-pressed')==='true','');
+check('kg pressed state shown',$('.unitseg [data-unit="kg"]').getAttribute('aria-pressed')==='true'&&$('.unitseg [data-unit="lb"]').getAttribute('aria-pressed')==='false','');
 """
 
 DRIVERS['guide'] = r"""
@@ -263,6 +265,8 @@ function stacked(sel,n){var r=$$(sel).map(function(e){var b=e.getBoundingClientR
   check(n+' stack vertically',r.length>=2&&r.every(function(x,i){return i===0||(x[0]>r[i-1][0]&&Math.abs(x[1]-r[0][1])<=1);}),JSON.stringify(r));}
 var b=$('#acctBtn').getBoundingClientRect();
 check('account button is top right',b.right>vw-45&&b.top<40,JSON.stringify([b.right,b.top]));
+var us=$('.unitseg').getBoundingClientRect();
+check('kg|lb switch sits under the account button',us.top>=b.bottom-1&&us.right>=b.right-2&&us.right<=b.right+2,JSON.stringify([us.top,b.bottom,us.right,b.right]));
 check('title stays on one line',$('h1').getBoundingClientRect().height<50,String($('h1').getBoundingClientRect().height));
 check('all five tabs fit without scrolling',(function(){var t=$('.tabs');return t.scrollWidth<=t.clientWidth+1;})(),$('.tabs').scrollWidth+' vs '+$('.tabs').clientWidth);
 check('menu shows sync status words',/device/.test($('#menuStatus').textContent),$('#menuStatus').textContent);
@@ -272,6 +276,9 @@ var m=$('#acctMenu').getBoundingClientRect();
 check('menu fits on screen',m.left>=0&&m.right<=vw,JSON.stringify([m.left,m.right]));
 click($('#acctBtn'));
 stacked('.seg button','session buttons');
+var cardH=$$('#panel-log .ex').slice(1).map(function(e){return Math.round(e.getBoundingClientRect().height);});
+check('closed exercise cards are compact',cardH.length>0&&cardH.every(function(h){return h<=110;}),JSON.stringify(cardH));
+check('summary line fits on one row',$$('#panel-log .exsum').every(function(e){return e.getBoundingClientRect().height<=52;}),JSON.stringify($$('#panel-log .exsum').map(function(e){return Math.round(e.getBoundingClientRect().height);})));
 typeIn($('#w-0-0'),'60');typeIn($('#r-0-0'),'8');await sleep(100);
 stacked('#sumbar span','log summary');
 overflow('Log');
@@ -289,6 +296,8 @@ var vw=window.innerWidth;
 check('wide viewport',vw===900,String(vw));
 var b=$('#acctBtn').getBoundingClientRect(),st=$('#status').getBoundingClientRect();
 check('account button is top right',b.right>vw-45&&b.top<60,JSON.stringify([b.right,b.top]));
+var us=$('.unitseg').getBoundingClientRect();
+check('kg|lb switch sits under the account button',us.top>=b.bottom-1&&Math.abs(us.right-b.right)<=2,JSON.stringify([us.top,b.bottom,us.right,b.right]));
 check('status sits left of the button on wide screens',st.right<=b.left&&Math.abs((st.top+st.height/2)-(b.top+b.height/2))<14,JSON.stringify([st.right,b.left]));
 check('session buttons share a row',(function(){var r=$$('.seg button').map(function(e){return Math.round(e.getBoundingClientRect().top);});return r.length>=2&&r[0]===r[1];})(),'');
 tab('weeks');await sleep(100);
@@ -299,10 +308,52 @@ tab('guide');await sleep(100);
 check('guide readable at desktop width',$$('#panel-guide .gsec').length>=5,'');
 """
 
+DRIVERS['accordion'] = r"""
+var exs=function(){return $$('#panel-log .ex');};
+var open=function(i){return !exs()[i].querySelector('.exbody').hidden;};
+check('Upper A has several exercises',exs().length>=5,String(exs().length));
+check('first exercise starts open',open(0)&&!open(1)&&!open(2),exs().map(function(e,i){return open(i);}).join());
+check('closed card shows a summary',/0\/4 sets/.test(exs()[1].querySelector('.exsumr').textContent),exs()[1].querySelector('.exsumr').textContent);
+check('summary row shows the target',/4 × 4–6/.test(exs()[0].querySelector('.exsumt').textContent),exs()[0].querySelector('.exsumt').textContent);
+check('inputs exist even in closed cards',!!$('#w-3-0'),'');
+click(exs()[1].querySelector('.exsum'));await sleep(50);
+check('tapping a closed card opens it',open(1)&&exs()[1].querySelector('.exsum').getAttribute('aria-expanded')==='true','');
+click(exs()[1].querySelector('.exsum'));await sleep(50);
+check('tapping again closes it',!open(1)&&exs()[1].querySelector('.exsum').getAttribute('aria-expanded')==='false','');
+typeIn($('#w-0-0'),'80');typeIn($('#r-0-0'),'5');await sleep(100);
+check('summary updates as you type',/1\/4 sets · top 80×5/.test(exs()[0].querySelector('.exsumr').textContent),exs()[0].querySelector('.exsumr').textContent);
+click(exs()[0].querySelector('.exsum'));await sleep(50);
+check('closing keeps the numbers',!open(0)&&$('#w-0-0').value==='80','');
+check('expand all shown',/Expand all/.test($('.exall').textContent),$('.exall').textContent);
+click($('.exall [data-act]'));await sleep(100);
+check('expand all opens everything',exs().every(function(e,i){return open(i);}),'');
+check('button flips to collapse all',/Collapse all/.test($('.exall').textContent),$('.exall').textContent);
+click($('.exall [data-act]'));await sleep(100);
+check('collapse all closes everything',exs().every(function(e,i){return !open(i);}),'');
+// open only card 2, remove card 1: the open flag follows the exercise
+var n0=exs().length,name2=exs()[2].querySelector('.exname').value;
+click(exs()[2].querySelector('.exsum'));await sleep(50);
+click(exs()[1].querySelector('.exsum'));await sleep(50);
+click(exs()[1].querySelector('[data-act="rmex"]'));await sleep(150);
+check('removing an exercise works',exs().length===n0-1,String(exs().length));
+check('open state follows the exercise after a removal',exs()[1].querySelector('.exname').value===name2&&open(1)&&!open(0),exs().map(function(e,i){return open(i);}).join());
+// add a new exercise: it opens
+typeIn($('#newex'),'Zottman curl');click($('[data-act="addex"]'));await sleep(150);
+check('new exercise opens',open(exs().length-1),'');
+// changing session starts fresh with the first card open
+click($('#type-lowerA'));await sleep(150);
+check('other session starts with first card open',open(0)&&!open(1),exs().map(function(e,i){return open(i);}).join());
+// editing the target opens the editor inside the open card
+click(exs()[0].querySelector('[data-act="edittarget"]'));await sleep(100);
+check('target editor shows in the open card',!!exs()[0].querySelector('.tedit'),'');
+click(exs()[0].querySelector('.exsum'));await sleep(100);
+check('closing the card closes the editor',!$('.tedit')&&!open(0),'');
+"""
+
 PLAN = [('local_a', 'local', 'L'), ('local_b', 'local', 'L'), ('legacy', 'legacy', 'G'),
         ('cloud_signup', 'cloud', 'C'), ('cloud_reload', 'cloud', 'C'), ('cloud_bad', 'cloud', 'C'),
         ('cloud_local', 'cloud', 'D'), ('cloud_local2', 'cloud', 'D'),
-        ('units', 'local', 'U'), ('units2', 'local', 'U'), ('guide', 'local', 'L2'), ('phone', 'local', 'P', 390), ('wide', 'local', 'P2', 900)]
+        ('units', 'local', 'U'), ('units2', 'local', 'U'), ('guide', 'local', 'L2'), ('accordion', 'local', 'A'), ('phone', 'local', 'P', 390), ('wide', 'local', 'P2', 900)]
 # cloud_local needs a fresh profile with nobody signed in: profile D starts empty, so the sign-in screen appears.
 
 

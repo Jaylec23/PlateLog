@@ -25,7 +25,7 @@ function renderActive(){
 
 /* ---------- account menu (top right) and weight unit ---------- */
 function syncUnitUI(){
-  $$('#acctMenu [data-unit]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.unit===UNIT));});
+  $$('.unitseg [data-unit]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.unit===UNIT));});
 }
 function setUnit(u){
   if(u===UNIT)return;
@@ -75,7 +75,7 @@ $('#panel-year').addEventListener('click',yearClick);
 $('#panel-year').addEventListener('change',function(e){if(e.target.id==='exsel'){S.exSel=e.target.value;renderYear();}});
 $('#exportBtn').addEventListener('click',exportCsv);
 $('#acctBtn').addEventListener('click',function(){toggleMenu($('#acctMenu').hidden);});
-$('#acctMenu').addEventListener('click',function(e){var b=e.target.closest('[data-unit]');if(b)setUnit(b.dataset.unit);});
+$('.unitseg').addEventListener('click',function(e){var b=e.target.closest('[data-unit]');if(b)setUnit(b.dataset.unit);});
 document.addEventListener('click',function(e){if(!$('#acctMenu').hidden&&!e.target.closest('.acctwrap'))toggleMenu(false);});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('#acctMenu').hidden){toggleMenu(false);$('#acctBtn').focus();}});
 document.addEventListener('pointermove',showTip);

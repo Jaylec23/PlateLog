@@ -44,6 +44,7 @@
     </div>
     <div class="topright">
       <div class="status" id="status" role="status"><i></i><span id="statusTxt">Connecting…</span></div>
+      <div class="acctcol">
       <div class="acctwrap">
         <button class="acctbtn" id="acctBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="acctMenu" aria-label="Account and settings">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
@@ -51,10 +52,10 @@
         <div class="acctmenu" id="acctMenu" hidden>
           <div class="mrow"><div class="eyebrow">Sync status</div><span class="acctmail" id="menuStatus">Connecting…</span></div>
           <div class="mrow"><div class="eyebrow">Account</div><div class="acct" id="acct"><span class="acctmail">Your log is on this device only.</span></div></div>
-          <div class="mrow"><div class="eyebrow">Weight unit</div>
-            <div class="unitseg" role="group" aria-label="Weight unit"><button type="button" data-unit="kg" aria-pressed="true">kg</button><button type="button" data-unit="lb" aria-pressed="false">lb</button></div></div>
           <div class="mrow"><a class="plink" href="privacy.html">Privacy policy</a></div>
         </div>
+      </div>
+      <div class="unitseg mini" role="group" aria-label="Weight unit"><button type="button" data-unit="kg" aria-pressed="true">kg</button><button type="button" data-unit="lb" aria-pressed="false">lb</button></div>
       </div>
     </div>
   </header>

@@ -75,10 +75,26 @@ function targetEditor(e,i){
     '<button type="button" class="btn small" data-act="tplan">Apply and save to plan</button>'+
     '<button type="button" class="btn small ghost" data-act="tcancel">Cancel</button></div>';
 }
+/* one-line summary shown under each exercise name while it is closed */
+function exSumText(e){
+  var done=e.sets.filter(isDone),n=e.sets.length;
+  if(!done.length)return '0/'+n+' sets';
+  var top=done.slice().sort(function(a,b){return (b.w-a.w)||(b.r-a.r);})[0];
+  return (done.length===n?'✓ ':'')+done.length+'/'+n+' sets · top '+fw(top.w)+'×'+top.r;
+}
+function exIsOpen(i){return !!(S.openEx&&S.openEx[i])||S.editTarget===i;}
+function setExOpen(exEl,open){
+  exEl.classList.toggle('open',open);
+  var body=$('.exbody',exEl),btn=$('.exsum',exEl);
+  if(body)body.hidden=!open;
+  if(btn){btn.setAttribute('aria-expanded',String(open));btn.setAttribute('aria-label',(open?'Hide':'Show')+' sets for '+(($('.exname',exEl)||{}).value||'exercise'));}
+}
 function renderLog(){
   var el=$('#panel-log');
   if(!S.draft)loadDraft();
   fixType();
+  /* which exercises are open is remembered while you stay on one session; a different session starts with just the first open */
+  if(S.openFor!==S.draft.key){S.openFor=S.draft.key;S.openEx={0:true};}
   var d=S.draft.doc,t={name:nameFor(S.type,S.draft.doc),tag:(nameFor(S.type,S.draft.doc)===nameFor(S.type)?tagFor(S.type):'')},last=lastSession(S.type,S.date);
   var loggedTypes={};
   S.sessions.forEach(function(s){if(s&&owner(s)===S.pid&&s.date===S.date&&hasContent(s)&&nameFor(s.type,s)===nameFor(s.type))loggedTypes[s.type]=1;});
@@ -101,18 +117,25 @@ function renderLog(){
         '<input class="r" id="r-'+i+'-'+j+'" type="number" inputmode="numeric" step="1" min="0" placeholder="'+(ph.r!=null?esc(ph.r):'')+'" value="'+(s.r!=null?esc(s.r):'')+'" aria-label="'+esc(e.name)+' set '+(j+1)+' reps">'+
         '<span class="e"></span></div>';
     }).join('');
-    return '<section class="card ex" data-i="'+i+'">'+
-      '<div class="exhead"><input class="exname" id="name-'+i+'" list="exlist" value="'+esc(e.name)+'" aria-label="Exercise name">'+
-      '<button type="button" class="target" data-act="edittarget" title="Change sets and rep range" aria-label="Change sets and rep range for '+esc(e.name)+'">'+esc(e.target||'—')+' ✎</button>'+
-      '<button type="button" class="iconbtn" data-act="rmex" title="Remove exercise" aria-label="Remove '+esc(e.name)+'">×</button></div>'+
+    var open=exIsOpen(i);
+    return '<section class="card ex'+(open?' open':'')+'" data-i="'+i+'">'+
+      '<div class="exhead"><input class="exname" id="name-'+i+'" list="exlist" value="'+esc(e.name)+'" aria-label="Exercise name"></div>'+
+      '<button type="button" class="exsum" data-act="toggleex" aria-expanded="'+open+'" aria-controls="exb-'+i+'" aria-label="'+(open?'Hide':'Show')+' sets for '+esc(e.name)+'">'+
+        '<span class="chev" aria-hidden="true">▾</span><span class="exsumt">'+esc(e.target||'—')+'</span><span class="exsumr"></span></button>'+
+      '<div class="exbody" id="exb-'+i+'"'+(open?'':' hidden')+'>'+
+      '<div class="exmeta"><button type="button" class="target" data-act="edittarget" title="Change sets and rep range" aria-label="Change sets and rep range for '+esc(e.name)+'">'+esc(e.target||'—')+' ✎</button>'+
+      '</div>'+
       (S.editTarget===i?targetEditor(e,i):'')+
       '<div class="last">'+lastLine(e.name,e.target,last)+'</div>'+
       '<div class="sethead"><span></span><span>'+UNIT+'</span><span></span><span>reps</span><span>est. 1RM</span></div>'+
       sets+
       '<div class="exfoot"><button type="button" class="btn small" data-act="addset">+ Set</button>'+
-      '<button type="button" class="btn small ghost" data-act="rmset">− Set</button><span class="exbest"></span></div>'+
-      '</section>';
+      '<button type="button" class="btn small ghost" data-act="rmset">− Set</button>'+
+      '<button type="button" class="btn small ghost" data-act="rmex" aria-label="Remove '+esc(e.name)+'">Remove exercise</button><span class="exbest"></span></div>'+
+      '</div></section>';
   }).join('');
+  var allOpen=d.exercises.length>0&&d.exercises.every(function(x,k){return exIsOpen(k);});
+  var allbar=d.exercises.length>1?'<div class="exall"><button type="button" class="btn small ghost" data-act="'+(allOpen?'colall':'expall')+'">'+(allOpen?'Collapse all':'Expand all')+'</button></div>':'';
   var clearUI=S.confirmClear
     ?'<span class="confirm">Clear all numbers and notes for this session? <button class="btn small primary" type="button" data-act="clear-yes">Yes, clear</button><button class="btn small" type="button" data-act="clear-no">Cancel</button></span>'
     :'<button class="btn small ghost" type="button" data-act="clear">Clear this session</button>';
@@ -131,7 +154,7 @@ function renderLog(){
       '<h2 class="sechead"><i class="dot" style="background:var(--c-'+S.type+');width:14px;height:14px"></i>'+esc(t.name)+(t.tag?' · '+esc(t.tag):'')+'</h2></div>'+
       (last?'<button type="button" class="btn small" data-act="copylast">Fill in last '+esc(t.name)+' ('+lbl(last.date)+')</button>':'<span class="muted" style="font-size:13px">No earlier '+esc(t.name)+' session yet</span>')+
     '</div>'+
-    exs+
+    allbar+exs+
     '<div class="addex"><input class="field" id="newex" list="exlist" placeholder="Add an exercise (for example Assisted pull-up)" aria-label="New exercise name"><button type="button" class="btn" data-act="addex">Add</button><label class="addlbl"><input type="checkbox" id="addplan"> Also add to plan</label></div>'+
     '<div class="eyebrow" style="margin-bottom:6px">Notes for this session</div>'+
     '<textarea class="field notes" id="notes" placeholder="How did it feel? Form cues, niggles, what to change next time.">'+esc(d.notes)+'</textarea>'+
@@ -149,6 +172,7 @@ function updateDerived(){
       $('.e',sEl).textContent=v?fmtN(Math.round(dv(v)*10)/10):'';
       if(v>best)best=v;
     });
+    var sm=$('.exsumr',exEl);if(sm){sm.textContent=exSumText(e);$('.exsum',exEl).classList.toggle('alldone',e.sets.length>0&&e.sets.every(isDone));}
     $('.exbest',exEl).textContent=best?'Best est. 1RM '+fmtN(Math.round(dv(best)*10)/10)+' '+UNIT:'';
   });
   var vol=sessVol(d),n=sessSets(d);
@@ -187,7 +211,28 @@ function logClick(e){
   }
   if(act==='addset'){d.exercises[i].sets.push({w:null,r:null});scheduleSave();renderLog();return;}
   if(act==='rmset'){if(d.exercises[i].sets.length>1){d.exercises[i].sets.pop();scheduleSave();renderLog();}return;}
-  if(act==='rmex'){d.exercises.splice(i,1);scheduleSave();renderLog();return;}
+  if(act==='toggleex'){
+    var exEl0=b.closest('.ex'),was=exIsOpen(i);
+    if(!S.openEx)S.openEx={};
+    S.openEx[i]=!was;
+    if(was&&S.editTarget===i){S.editTarget=-1;renderLog();return;}
+    setExOpen(exEl0,!was);
+    var allb=$('.exall [data-act]');
+    if(allb){var every=d.exercises.every(function(x,k){return exIsOpen(k);});allb.dataset.act=every?'colall':'expall';allb.textContent=every?'Collapse all':'Expand all';}
+    return;
+  }
+  if(act==='expall'||act==='colall'){
+    S.openEx={};
+    if(act==='expall')d.exercises.forEach(function(x,k){S.openEx[k]=true;});
+    else S.editTarget=-1;
+    renderLog();return;
+  }
+  if(act==='rmex'){
+    var shifted={};
+    Object.keys(S.openEx||{}).forEach(function(k){k=+k;if(k<i)shifted[k]=S.openEx[k];else if(k>i)shifted[k-1]=S.openEx[k];});
+    S.openEx=shifted;
+    d.exercises.splice(i,1);scheduleSave();renderLog();return;
+  }
   if(act==='edittarget'){
     S.editTarget=S.editTarget===i?-1:i;renderLog();
     var tf=$('#ts-'+i);if(tf)tf.focus();return;
@@ -219,6 +264,8 @@ function logClick(e){
     d.exercises.push({name:name,target:toPlan?fmtTarget(3,8,12):'3 sets',sets:[{w:null,r:null},{w:null,r:null},{w:null,r:null}]});
     var pdd=dayOf(S.type);
     if(toPlan&&pdd){pdd.ex.push({name:name,sets:3,lo:8,hi:12});scheduleCfg();}
+    if(!S.openEx)S.openEx={};
+    S.openEx[d.exercises.length-1]=true;
     scheduleSave();renderLog();return;
   }
   if(act==='copylast'){

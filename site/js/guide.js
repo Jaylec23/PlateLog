@@ -16,6 +16,7 @@ function renderGuide(){
       '<li>Type the weight and reps for each set. Everything saves by itself.</li>'+
       '<li>Check <b>Weeks</b> and <b>Year</b> any time to see how you are progressing.</li></ol></div>'+
     guideSection('Log',[
+      'Each exercise is a drop-down. Tap one to open its sets and tap again to close it, or use <b>Expand all</b> and <b>Collapse all</b>. The line under the name shows how many sets you have done and your top set.',
       'Use the arrows or the date box to choose a day. A tick on a session button means you already logged it that day.',
       'Faded numbers in the boxes are what you lifted last time for the same set. <b>Fill in last</b> copies them across so you only change what is different.',
       'Tap the target next to an exercise (for example <i>4 × 4–6</i>) to change its sets and reps for this session. <b>Apply and save to plan</b> keeps the change.',
@@ -41,7 +42,7 @@ function renderGuide(){
       'Changes apply to sessions you start from then on.'
     ])+
     guideSection('Units, people and your account',[
-      '<b>kg or lb:</b> tap the person icon at the top right and choose a weight unit. Your logs are stored in kg and converted on screen, so you can switch whenever you like and nothing is lost.',
+      '<b>kg or lb:</b> use the <b>kg | lb</b> switch under the person icon at the top right. Your logs are stored in kg and converted on screen, so you can switch whenever you like and nothing is lost.',
       '<b>More than one person:</b> <b>+ Add person</b> under the title gives someone their own logs and plan, handy if you share a device.',
       '<b>Signing in</b> keeps your log in your account so it follows you to any phone or computer. Without an account your log stays in this browser only and is erased if you clear your browser data.',
       '<b>Export all sets (CSV)</b> at the bottom of the page downloads everything as a spreadsheet file, in the unit you have selected.'
