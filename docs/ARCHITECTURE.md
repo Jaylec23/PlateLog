@@ -21,7 +21,7 @@ tests/run_tests.py    browser tests (Chrome headless + mock Supabase)
 Classic `<script>` tags, not modules. Every file shares ONE global scope, so functions call each other by bare name. This keeps it working when opened from disk and needs no tooling.
 Load order is fixed in `index.html` and matters:
 
-`config.js` > `cloud.js` > `data.js` > `util.js` > `state.js` > `storage.js` > `log.js` > `weeks.js` > `year.js` > `people.js` > `plan.js` > `guide.js` > `export.js` > `main.js`
+`config.js` > `cloud.js` > `data.js` > `util.js` > `state.js` > `storage.js` > `log.js` > `weeks.js` > `year.js` > `people.js` > `plan.js` > `installart.js` > `guide.js` > `export.js` > `main.js`
 
 Rules that follow from this:
 - A file may call functions from later files at run time (inside functions), but must not call them while loading.
@@ -41,7 +41,8 @@ Rules that follow from this:
 | `js/year.js` | Year tab charts (heatmap, weekly volume, e1RM line), records, tooltip, example data. |
 | `js/people.js` | People bar: add, rename, remove, switch person. |
 | `js/plan.js` | Plan tab: split dropdown, day accordions, exercise search, custom days. |
-| `js/guide.js` | Guide tab: plain how-to text (no saved data). |
+| `js/installart.js` | Inline SVG phone drawings for the home-screen install steps (iPhone and Android, 4 steps each). They are simplified illustrations, not real screenshots, and can be swapped for real images later. |
+| `js/guide.js` | Guide tab: plain how-to text (no saved data), the install section, and the install banner on the main screen. The banner (`#install` in `index.html`) shows only on touch devices not already running as an installed app, until dismissed. Dismissal is stored per device in `localStorage` key `platelog.hideInstall`. "Show me how" opens the Guide's install section. |
 | `js/export.js` | CSV export, in the selected unit. |
 | `js/main.js` | `setTab`, `renderActive`, event wiring, start-up, the top-right account menu (`toggleMenu`) and the kg/lb switch under it (`setUnit`). |
 | `styles/base.css` | Colour tokens (light/dark), layout, header, tabs, shared controls. |

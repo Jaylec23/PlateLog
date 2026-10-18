@@ -250,7 +250,7 @@ DRIVERS['guide'] = r"""
 tab('guide');await sleep(100);
 check('guide tab opens',!$('#panel-guide').hidden&&$('#tab-guide').getAttribute('aria-selected')==='true','');
 check('guide has sections',$$('#panel-guide .gsec').length>=5,String($$('#panel-guide .gsec').length));
-check('first section open',$('#panel-guide .gsec').open===true,'');
+check('Log section starts open and install section starts closed',$$('#panel-guide .gsec')[1].open===true&&$('#guide-install').open===false,'');
 check('guide mentions split names',/Upper \/ Lower/.test($('#panel-guide').textContent)||/Push/.test($('#panel-guide').textContent),'');
 check('guide links to privacy page',!!$('#panel-guide a[href="privacy.html"]'),'');
 check('footer links to privacy page',!!$('.foot a[href="privacy.html"]'),'');
@@ -289,6 +289,16 @@ var lb=$$('.dedit label').map(function(e){return Math.round(e.getBoundingClientR
 check('plan day fields stack',lb.length<2||lb.every(function(x,i){return i===0||x>lb[i-1];}),JSON.stringify(lb));
 overflow('Plan');
 tab('guide');await sleep(100);overflow('Guide');
+updateInstallBanner(true);await sleep(50);
+var ib=$('#install').getBoundingClientRect();
+check('banner fits inside the phone width',ib.left>=0&&ib.right<=vw&&ib.height>0&&ib.height<140,JSON.stringify([ib.left,ib.right,ib.height]));
+overflow('Guide with banner');
+click($('#install [data-act="goinstall"]'));await sleep(200);
+overflow('install steps');
+var ph=$('#guide-install [data-for]:not([hidden]) .phone').getBoundingClientRect(),tx=$('#guide-install [data-for]:not([hidden]) .itxt').getBoundingClientRect();
+check('drawing and caption sit side by side',Math.abs((ph.top+ph.height/2)-(tx.top+tx.height/2))<60&&tx.left>=ph.right-1,JSON.stringify([ph.right,tx.left]));
+var st=$$('#guide-install [data-for]:not([hidden]) .istep').map(function(e){return Math.round(e.getBoundingClientRect().top);});
+check('steps stack one under another',st.length===4&&st.every(function(x,i){return i===0||x>st[i-1];}),JSON.stringify(st));
 """
 
 DRIVERS['wide'] = r"""
@@ -313,7 +323,13 @@ var exs=function(){return $$('#panel-log .ex');};
 var open=function(i){return !exs()[i].querySelector('.exbody').hidden;};
 check('Upper A has several exercises',exs().length>=5,String(exs().length));
 check('first exercise starts open',open(0)&&!open(1)&&!open(2),exs().map(function(e,i){return open(i);}).join());
-check('closed card shows a summary',/0\/4 sets/.test(exs()[1].querySelector('.exsumr').textContent),exs()[1].querySelector('.exsumr').textContent);
+check('closed card invites you to log',/Tap to log sets/.test(exs()[1].querySelector('.exsumr').textContent),exs()[1].querySelector('.exsumr').textContent);
+check('open card with nothing logged shows 0/4',/0\/4 sets/.test(exs()[0].querySelector('.exsumr').textContent),exs()[0].querySelector('.exsumr').textContent);
+check('open card prompts for weight and reps',/Enter the weight and reps/.test(exs()[0].querySelector('.last').textContent),exs()[0].querySelector('.last').textContent);
+click(exs()[1].querySelector('.exsum'));await sleep(50);
+check('summary switches to 0/4 once opened',/0\/4 sets/.test(exs()[1].querySelector('.exsumr').textContent),exs()[1].querySelector('.exsumr').textContent);
+click(exs()[1].querySelector('.exsum'));await sleep(50);
+check('and back to the prompt when closed',/Tap to log sets/.test(exs()[1].querySelector('.exsumr').textContent),exs()[1].querySelector('.exsumr').textContent);
 check('summary row shows the target',/4 × 4–6/.test(exs()[0].querySelector('.exsumt').textContent),exs()[0].querySelector('.exsumt').textContent);
 check('inputs exist even in closed cards',!!$('#w-3-0'),'');
 click(exs()[1].querySelector('.exsum'));await sleep(50);
@@ -350,10 +366,41 @@ click(exs()[0].querySelector('.exsum'));await sleep(100);
 check('closing the card closes the editor',!$('.tedit')&&!open(0),'');
 """
 
+DRIVERS['install'] = r"""
+check('banner hidden on a desktop browser',$('#install').hidden===true,'');
+updateInstallBanner(true);
+check('banner can be shown',$('#install').hidden===false&&/Get Plate Log as an app/.test($('#install').textContent),'');
+check('banner has a Show me how button',!!$('#install [data-act="goinstall"]'),'');
+tab('weeks');await sleep(50);
+check('banner stays on other tabs',$('#install').hidden===false,'');
+click($('#install [data-act="goinstall"]'));await sleep(150);
+check('Show me how opens the Guide',$('#tab-guide').getAttribute('aria-selected')==='true','');
+check('install section is open',$('#guide-install').open===true,'');
+check('banner is still there after opening the guide',$('#install').hidden===false,'');
+check('iPhone steps drawn',$$('#guide-install [data-for="ios"] .phone').length===4,String($$('#guide-install [data-for="ios"] .phone').length));
+check('Android steps drawn',$$('#guide-install [data-for="android"] .phone').length===4,'');
+check('only one phone type visible',$('#guide-install [data-for="ios"]').hidden!==$('#guide-install [data-for="android"]').hidden,'');
+click($('#guide-install [data-plat="android"]'));await sleep(50);
+check('Android toggle shows the Android steps',$('#guide-install [data-for="android"]').hidden===false&&$('#guide-install [data-for="ios"]').hidden===true&&$('[data-plat="android"]').getAttribute('aria-pressed')==='true','');
+check('step captions present',/Install app/.test($('#guide-install [data-for="android"]').textContent)&&/Tap Add to Home Screen/.test($('#guide-install [data-for="ios"]').textContent),'');
+check('drawings have text alternatives',$$('#guide-install .phone').every(function(s){return !!s.getAttribute('aria-label');}),'');
+check('app icon used in drawings',$$('#guide-install image').length>=4,String($$('#guide-install image').length));
+tab('log');await sleep(50);
+check('guide opens collapsed when visited normally',(tab('guide'),$('#guide-install').open===false),'');
+click($('#install [data-act="hideinstall"]'));await sleep(50);
+check('dismiss hides the banner',$('#install').hidden===true,'');
+check('dismissal is remembered',localStorage.getItem('platelog.hideInstall')==='1','');
+"""
+
+DRIVERS['install2'] = r"""
+updateInstallBanner(true);
+check('banner stays gone after a reload',$('#install').hidden===true,'');
+"""
+
 PLAN = [('local_a', 'local', 'L'), ('local_b', 'local', 'L'), ('legacy', 'legacy', 'G'),
         ('cloud_signup', 'cloud', 'C'), ('cloud_reload', 'cloud', 'C'), ('cloud_bad', 'cloud', 'C'),
         ('cloud_local', 'cloud', 'D'), ('cloud_local2', 'cloud', 'D'),
-        ('units', 'local', 'U'), ('units2', 'local', 'U'), ('guide', 'local', 'L2'), ('accordion', 'local', 'A'), ('phone', 'local', 'P', 390), ('wide', 'local', 'P2', 900)]
+        ('units', 'local', 'U'), ('units2', 'local', 'U'), ('guide', 'local', 'L2'), ('accordion', 'local', 'A'), ('install', 'local', 'I'), ('install2', 'local', 'I'), ('phone', 'local', 'P', 390), ('wide', 'local', 'P2', 900)]
 # cloud_local needs a fresh profile with nobody signed in: profile D starts empty, so the sign-in screen appears.
 
 

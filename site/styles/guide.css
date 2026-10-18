@@ -12,3 +12,51 @@
 .gsec li{margin:8px 0}
 .gnote{font-size:14px;margin:14px 0}
 .gsec a,.gnote a{color:var(--ink);text-decoration:underline}
+
+/* install banner on the main screen */
+.install{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c-lowerA);border-radius:4px;padding:10px 12px;margin-top:14px}
+.install[hidden]{display:none}
+.insticon{border-radius:10px;flex:none}
+.insttxt{display:flex;flex-direction:column;gap:2px;flex:1 1 200px;min-width:0}
+.insttxt b{font-size:15px}
+.insttxt span{font-size:13px;color:var(--ink2)}
+.instact{display:flex;align-items:center;gap:6px;margin-left:auto}
+
+/* install steps with phone drawings */
+.ginstall{padding:12px 14px 14px}
+.gintro{margin:0 0 10px;color:var(--ink2)}
+.platseg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-bottom:14px}
+.platseg button{background:var(--input);border:0;padding:8px 18px;min-height:38px;font-weight:600;cursor:pointer;color:var(--muted)}
+.platseg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.ginstall [data-for][hidden]{display:none}
+.isteps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px}
+.istep{display:flex;align-items:center;gap:14px}
+.itxt b{font-size:15px}
+.itxt p{margin:4px 0 0;color:var(--ink2);font-size:14px}
+.gnote2{font-size:13px;margin:14px 0 0}
+@media (min-width:700px){.isteps{display:grid;grid-template-columns:1fr 1fr;gap:18px 24px}}
+.phone{width:112px;height:auto;flex:none;display:block}
+.pf{fill:var(--surface);stroke:var(--ink2);stroke-width:3}
+.ps{fill:var(--bg)}
+.pwall{fill:var(--line2)}
+.pk{fill:var(--ink)}
+.pc{fill:var(--surface);stroke:var(--line);stroke-width:1}
+.pm2{fill:var(--line)}
+.phone text{font-family:var(--f-body);font-size:7px;fill:var(--ink)}
+.phone text.pm{fill:var(--muted)}
+.phone text.pw{fill:var(--bg)}
+.phone text.pb{font-weight:700}
+.pb2{fill:var(--surface);stroke:var(--line);stroke-width:1}
+.pl2{stroke:var(--ink2)}
+.pdim{fill:rgba(0,0,0,.4)}
+.pinp{fill:var(--input);stroke:var(--line);stroke-width:1}
+.pi{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pi.pmu{stroke:var(--muted)}
+.pi.pn{stroke:var(--muted);stroke-width:1.2}
+.pw2{fill:none;stroke:var(--bg);stroke-width:1.5;stroke-linecap:round}
+.pic{fill:var(--surface);stroke:var(--line);stroke-width:1}
+.pdock{fill:var(--surface);opacity:.85}
+.hf{fill:var(--warn-bg)}
+.hl{fill:none;stroke:var(--c-upperA);stroke-width:2.2;transform-box:fill-box;transform-origin:center}
+@media (prefers-reduced-motion:no-preference){.hl{animation:hlp 1.6s ease-in-out infinite}}
+@keyframes hlp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.1)}}

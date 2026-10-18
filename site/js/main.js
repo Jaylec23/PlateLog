@@ -74,6 +74,8 @@ $('#panel-weeks').addEventListener('click',weeksClick);
 $('#panel-year').addEventListener('click',yearClick);
 $('#panel-year').addEventListener('change',function(e){if(e.target.id==='exsel'){S.exSel=e.target.value;renderYear();}});
 $('#exportBtn').addEventListener('click',exportCsv);
+$('#install').addEventListener('click',installClick);
+$('#panel-guide').addEventListener('click',guideClick);
 $('#acctBtn').addEventListener('click',function(){toggleMenu($('#acctMenu').hidden);});
 $('.unitseg').addEventListener('click',function(e){var b=e.target.closest('[data-unit]');if(b)setUnit(b.dataset.unit);});
 document.addEventListener('click',function(e){if(!$('#acctMenu').hidden&&!e.target.closest('.acctwrap'))toggleMenu(false);});
@@ -95,6 +97,7 @@ loadActive();
 S.type=defaultTypeFor(S.date);
 loadDraft();
 refreshDatalist();
+updateInstallBanner();
 renderPeople();
 renderActive();
 }

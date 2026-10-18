@@ -76,18 +76,25 @@ function targetEditor(e,i){
     '<button type="button" class="btn small ghost" data-act="tcancel">Cancel</button></div>';
 }
 /* one-line summary shown under each exercise name while it is closed */
-function exSumText(e){
+function exSumText(e,open){
   var done=e.sets.filter(isDone),n=e.sets.length;
-  if(!done.length)return '0/'+n+' sets';
+  if(!done.length)return open?'0/'+n+' sets':'Tap to log sets';
   var top=done.slice().sort(function(a,b){return (b.w-a.w)||(b.r-a.r);})[0];
   return (done.length===n?'✓ ':'')+done.length+'/'+n+' sets · top '+fw(top.w)+'×'+top.r;
 }
 function exIsOpen(i){return !!(S.openEx&&S.openEx[i])||S.editTarget===i;}
+function updateExSum(exEl){
+  var e=S.draft&&S.draft.doc.exercises[+exEl.dataset.i],sm=$('.exsumr',exEl);
+  if(!e||!sm)return;
+  sm.textContent=exSumText(e,exEl.classList.contains('open'));
+  $('.exsum',exEl).classList.toggle('alldone',e.sets.length>0&&e.sets.every(isDone));
+}
 function setExOpen(exEl,open){
   exEl.classList.toggle('open',open);
   var body=$('.exbody',exEl),btn=$('.exsum',exEl);
   if(body)body.hidden=!open;
   if(btn){btn.setAttribute('aria-expanded',String(open));btn.setAttribute('aria-label',(open?'Hide':'Show')+' sets for '+(($('.exname',exEl)||{}).value||'exercise'));}
+  updateExSum(exEl);
 }
 function renderLog(){
   var el=$('#panel-log');
@@ -126,7 +133,7 @@ function renderLog(){
       '<div class="exmeta"><button type="button" class="target" data-act="edittarget" title="Change sets and rep range" aria-label="Change sets and rep range for '+esc(e.name)+'">'+esc(e.target||'—')+' ✎</button>'+
       '</div>'+
       (S.editTarget===i?targetEditor(e,i):'')+
-      '<div class="last">'+lastLine(e.name,e.target,last)+'</div>'+
+      '<div class="last">'+(lastLine(e.name,e.target,last)||'Enter the weight and reps for each set you complete.')+'</div>'+
       '<div class="sethead"><span></span><span>'+UNIT+'</span><span></span><span>reps</span><span>est. 1RM</span></div>'+
       sets+
       '<div class="exfoot"><button type="button" class="btn small" data-act="addset">+ Set</button>'+
@@ -172,7 +179,7 @@ function updateDerived(){
       $('.e',sEl).textContent=v?fmtN(Math.round(dv(v)*10)/10):'';
       if(v>best)best=v;
     });
-    var sm=$('.exsumr',exEl);if(sm){sm.textContent=exSumText(e);$('.exsum',exEl).classList.toggle('alldone',e.sets.length>0&&e.sets.every(isDone));}
+    updateExSum(exEl);
     $('.exbest',exEl).textContent=best?'Best est. 1RM '+fmtN(Math.round(dv(best)*10)/10)+' '+UNIT:'';
   });
   var vol=sessVol(d),n=sessSets(d);

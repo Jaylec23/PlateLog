@@ -6,6 +6,49 @@ function guideSection(title,items,open){
   return '<details class="card gsec"'+(open?' open':'')+'><summary><span class="sechead">'+title+'</span><span class="chev" aria-hidden="true">▾</span></summary>'+
     '<ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></details>';
 }
+/* ---------- install on the home screen: Guide section ---------- */
+function guideInstall(open){
+  var plat=S.installPlat||detectPlat();
+  return '<details class="card gsec" id="guide-install"'+(open?' open':'')+'><summary><span class="sechead">Put it on your home screen</span><span class="chev" aria-hidden="true">▾</span></summary>'+
+    '<div class="ginstall"><p class="gintro">Open Plate Log in one tap, full screen, with no browser bars. It takes about ten seconds and uses almost no storage.</p>'+
+    '<div class="platseg" role="group" aria-label="Phone type"><button type="button" data-plat="ios" aria-pressed="'+(plat==='ios')+'">iPhone</button><button type="button" data-plat="android" aria-pressed="'+(plat==='android')+'">Android</button></div>'+
+    '<div data-for="ios"'+(plat==='ios'?'':' hidden')+'>'+installSteps('ios')+'</div>'+
+    '<div data-for="android"'+(plat==='android'?'':' hidden')+'>'+installSteps('android')+'</div>'+
+    '<p class="muted gnote2">The pictures are simplified drawings of each step. Your screen may look a little different depending on your phone and its software version.</p></div></details>';
+}
+function guideClick(e){
+  var b=e.target.closest('[data-plat]');if(!b)return;
+  S.installPlat=b.dataset.plat;
+  $$('#panel-guide [data-plat]').forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.plat===S.installPlat));});
+  $$('#panel-guide [data-for]').forEach(function(x){x.hidden=x.dataset.for!==S.installPlat;});
+}
+
+/* ---------- install banner on the main screen ---------- */
+var INSTALL_KEY='platelog.hideInstall';
+function installDismissed(){try{return localStorage.getItem(INSTALL_KEY)==='1';}catch(e){return false;}}
+function installWanted(){
+  var standalone=false,touch=false;
+  try{standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;}catch(e){}
+  try{touch=(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches)||/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||'');}catch(e){}
+  return touch&&!standalone;
+}
+/* shown on phones and tablets that have not installed it yet, until the person dismisses it; force skips the device check (tests) */
+function updateInstallBanner(force){
+  var el=$('#install');if(!el)return;
+  el.hidden=installDismissed()||!(force||installWanted());
+}
+function installClick(e){
+  var b=e.target.closest('[data-act]');if(!b)return;
+  if(b.dataset.act==='hideinstall'){
+    try{localStorage.setItem(INSTALL_KEY,'1');}catch(err){}
+    $('#install').hidden=true;
+  }else if(b.dataset.act==='goinstall'){
+    S.guideFocus='install';
+    setTab('guide');
+    var t=$('#guide-install');if(t)t.scrollIntoView(true);
+  }
+}
+
 function renderGuide(){
   var el=$('#panel-guide');
   var splitNames=(typeof SPLITS!=='undefined'?SPLITS.map(function(x){return esc(x.name);}).join(', '):'')||'several ready-made splits';
@@ -15,6 +58,7 @@ function renderGuide(){
       '<li>Open the <b>Log</b> tab and pick the session you are doing today.</li>'+
       '<li>Type the weight and reps for each set. Everything saves by itself.</li>'+
       '<li>Check <b>Weeks</b> and <b>Year</b> any time to see how you are progressing.</li></ol></div>'+
+    guideInstall(S.guideFocus==='install')+
     guideSection('Log',[
       'Each exercise is a drop-down. Tap one to open its sets and tap again to close it, or use <b>Expand all</b> and <b>Collapse all</b>. The line under the name shows how many sets you have done and your top set.',
       'Use the arrows or the date box to choose a day. A tick on a session button means you already logged it that day.',
@@ -47,9 +91,6 @@ function renderGuide(){
       '<b>Signing in</b> keeps your log in your account so it follows you to any phone or computer. Without an account your log stays in this browser only and is erased if you clear your browser data.',
       '<b>Export all sets (CSV)</b> at the bottom of the page downloads everything as a spreadsheet file, in the unit you have selected.'
     ])+
-    guideSection('Put it on your home screen',[
-      '<b>iPhone:</b> open the site in Safari, tap the Share button, then <b>Add to Home Screen</b>.',
-      '<b>Android:</b> open the site in Chrome, tap the ⋮ menu, then <b>Add to Home screen</b> or <b>Install app</b>.'
-    ])+
     '<p class="muted gnote">Read how your data is handled in the <a href="privacy.html">privacy policy</a>.</p>';
+  S.guideFocus=null;
 }
