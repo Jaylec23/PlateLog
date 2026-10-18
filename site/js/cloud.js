@@ -15,22 +15,26 @@ function $(s){return document.querySelector(s);}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}return null;}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
-/* ---------- account bar (in the footer) ---------- */
+/* ---------- account area (inside the top-right menu in index.html) ---------- */
 function bar(html,onClick){
-  var foot=$('.foot');if(!foot)return;
-  var el=$('#acct');
-  if(!el){el=document.createElement('span');el.id='acct';el.className='acct';foot.insertBefore(el,foot.firstChild);}
+  var el=$('#acct');if(!el)return;
   el.innerHTML=html;
   el.onclick=onClick||null;
 }
+/* short notices go in the footer message line, since the menu is usually closed */
+function note(txt,ms){
+  var m=$('#msg');if(!m)return;
+  m.textContent=txt;
+  setTimeout(function(){if(m.textContent===txt)m.textContent='';},ms||6000);
+}
 function accountBar(email){
   if(email){
-    bar('<span class="acctmail">'+esc(email)+'</span> <button class="btn small" type="button" data-a="out">Sign out</button>',function(e){
+    bar('<span class="acctmail">Signed in as<br><b>'+esc(email)+'</b></span><button class="btn small" type="button" data-a="out">Sign out</button>',function(e){
       if(e.target.getAttribute('data-a')!=='out')return;
       Promise.resolve(client.auth.signOut()).catch(function(){}).then(function(){ls(MODE_KEY,null);location.reload();});
     });
   }else{
-    bar('<button class="btn small" type="button" data-a="in">Sign in to sync</button>',function(e){
+    bar('<span class="acctmail">Your log is on this device only.</span><button class="btn small" type="button" data-a="in">Sign in to sync</button>',function(e){
       if(e.target.getAttribute('data-a')!=='in')return;
       ls(MODE_KEY,null);location.reload();
     });
@@ -56,7 +60,7 @@ function showAuth(mode){
         '</form>'+
         '<div class="authmsg '+(kind||'')+'" role="status">'+esc(msg||'')+'</div>'+
         (isNew?'':'<div class="authlinks"><button type="button" data-a="reset">Forgot password?</button><button type="button" data-a="local">Continue without an account</button></div>')+
-        '<p class="authnote">Without an account your log stays on this device only.</p></div>';
+        '<p class="authnote">Without an account your log stays on this device only. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a></p></div>';
     }
     render();
     w.addEventListener('click',function(e){
@@ -111,7 +115,7 @@ async function start(){
   if(!enabled)return null;
   if(ls(MODE_KEY)==='local'){accountBar(null);return null;}
   var ok=await loadLib();
-  if(!ok){bar('<span class="acctmail">Could not load sign-in, using this device only.</span>');return null;}
+  if(!ok){bar('<span class="acctmail">Could not load sign-in, so this device is being used only.</span>');note('Could not load sign-in. Using this device only.');return null;}
   client=window.supabase.createClient(URL_,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   client.auth.onAuthStateChange(function(ev){if(ev==='PASSWORD_RECOVERY')recovery=true;});
   var r=await client.auth.getSession();
@@ -158,7 +162,7 @@ function makeDb(u){
           var mig=migrateRows(u);
           if(mig.length){
             var up=await client.from('docs').upsert(mig,{onConflict:'user_id,id'});
-            if(!up.error){rows=mig;bar('<span class="acctmail">Uploaded this device’s logs to your account.</span>');setTimeout(function(){accountBar(u.email);},6000);}
+            if(!up.error){rows=mig;note('Uploaded this device’s logs to your account.');}
           }
         }
         if(!first&&(pending>0||gen!==g0))return;

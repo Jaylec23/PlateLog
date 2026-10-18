@@ -11,7 +11,11 @@
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .seg button[aria-pressed="true"] span.t{color:var(--bg);opacity:.75}
 .seg .logged{margin-left:auto;font-size:11px;font-family:var(--f-mono)}
-@media (max-width:560px){.seg{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){
+  .seg{grid-template-columns:1fr;gap:6px}
+  .seg button{flex-direction:row;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;min-height:44px}
+  .sumbar{flex-direction:column;gap:2px}
+}
 .sesshead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
 .sesshead h2{display:flex;align-items:center;gap:10px}
 .ex{padding:14px;margin-bottom:12px}

@@ -7,7 +7,8 @@ Read this first in any session, then attach only the files for the area being ch
 ```
 site/                 what Cloudflare Pages serves (build output directory = site)
   index.html          page skeleton: header, tabs, empty panels, script tags
-  config.js           Supabase URL + publishable key (safe to publish; never the secret key)
+  config.js           Supabase URL + publishable key (safe to publish; never the secret key). Optional CONTACT_EMAIL shows on the privacy page.
+  privacy.html        standalone privacy policy page (linked from the menu, footer, sign-in card and Guide)
   _headers            tells browsers to revalidate files, so updates show up
   manifest.webmanifest, *.png   Home Screen icons
   styles/             one stylesheet per area (see table)
@@ -20,7 +21,7 @@ tests/run_tests.py    browser tests (Chrome headless + mock Supabase)
 Classic `<script>` tags, not modules. Every file shares ONE global scope, so functions call each other by bare name. This keeps it working when opened from disk and needs no tooling.
 Load order is fixed in `index.html` and matters:
 
-`config.js` > `cloud.js` > `data.js` > `util.js` > `state.js` > `storage.js` > `log.js` > `weeks.js` > `year.js` > `people.js` > `plan.js` > `export.js` > `main.js`
+`config.js` > `cloud.js` > `data.js` > `util.js` > `state.js` > `storage.js` > `log.js` > `weeks.js` > `year.js` > `people.js` > `plan.js` > `guide.js` > `export.js` > `main.js`
 
 Rules that follow from this:
 - A file may call functions from later files at run time (inside functions), but must not call them while loading.
@@ -30,20 +31,22 @@ Rules that follow from this:
 ## File map: what each file owns
 | File | Owns |
 |---|---|
-| `js/cloud.js` | Optional Supabase accounts. Sign-in screen, account bar, and a small shim that exposes `window.claude.use('db'|'user')` so the rest of the app does not care where data lives. No keys configured = local only. |
+| `js/cloud.js` | Optional Supabase accounts. Sign-in screen, the account area inside the top-right menu (`#acct`), and a small shim that exposes `window.claude.use('db'|'user')` so the rest of the app does not care where data lives. No keys configured = local only. |
 | `js/data.js` | Constants: slot ids and colours, `SPLITS` (ready-made splits), `LIB` (exercise library), `CHIPS` (muscle filters), `buildSplit()`. |
-| `js/util.js` | Pure helpers: dates, escaping, `e1rm`, `hasContent`, `sessionsList`, `keyOf`, `parseTarget`. |
-| `js/state.js` | The `S` state object, config normalising (`normCfg`, `normPlan`), plan helpers (`getPlan`, `dayOf`, `nameFor`, `stampLabels`), `setStatus`, `say`. |
+| `js/util.js` | Pure helpers: dates, escaping, `e1rm`, `hasContent`, `sessionsList`, `keyOf`, `parseTarget`, and the weight-unit helpers (`UNIT`, `dv`, `inW`, `outW`, `fw`). |
+| `js/state.js` | The `S` state object, config normalising (`normCfg`, `normPlan`), plan helpers (`getPlan`, `dayOf`, `nameFor`, `stampLabels`), `setStatus` (also mirrors the text into the menu), `say`. `normCfg` also restores the saved unit. |
 | `js/storage.js` | `startStorage` (picks account or device), `onData`, debounced saves (`scheduleSave`, `scheduleCfg`, `commit`, `flush`), `deleteSessions`. |
 | `js/log.js` | Log tab: drafts (`loadDraft`, `blankFrom`, `lastSession`), `renderLog`, set entry, per-session target editor. |
 | `js/weeks.js` | Weeks tab. |
 | `js/year.js` | Year tab charts (heatmap, weekly volume, e1RM line), records, tooltip, example data. |
 | `js/people.js` | People bar: add, rename, remove, switch person. |
 | `js/plan.js` | Plan tab: split dropdown, day accordions, exercise search, custom days. |
-| `js/export.js` | CSV export. |
-| `js/main.js` | `setTab`, `renderActive`, event wiring, start-up. |
+| `js/guide.js` | Guide tab: plain how-to text (no saved data). |
+| `js/export.js` | CSV export, in the selected unit. |
+| `js/main.js` | `setTab`, `renderActive`, event wiring, start-up, and the top-right account menu (`toggleMenu`) with the kg/lb switch (`setUnit`). |
 | `styles/base.css` | Colour tokens (light/dark), layout, header, tabs, shared controls. |
-| `styles/log.css` `weeks.css` `year.css` `plan.css` `people.css` `auth.css` | Styles for the matching area. |
+| `styles/log.css` `weeks.css` `year.css` `plan.css` `people.css` `guide.css` | Styles for the matching area. Each holds its own phone (`max-width:560px`) layout. |
+| `styles/auth.css` | Sign-in screen and the top-right account menu / status dot. |
 
 ## Data model
 Everything is stored as small documents with an id, either in localStorage (`platelog.v1`, one object keyed by doc id) or in the Supabase table `docs (user_id, id, data jsonb)`.
@@ -53,12 +56,13 @@ Everything is stored as small documents with an id, either in localStorage (`pla
 - `type` is a SLOT id, not a name. Slots: `upperA, lowerA, upperB, lowerB, extra, day6`. They give each day its colour (`--c-<slot>`).
 - `label` is the day name at the time of logging. History always shows `label`, so changing split never renames old sessions.
 
-**Config doc**, id `config`: `{people:[{id,name}], plans:{<personId>: Plan}}`
+**Config doc**, id `config`: `{people:[{id,name}], plans:{<personId>: Plan}, unit:'kg'|'lb'}`
 **Plan**: `{split:'ul'|'ppl'|'fb'|'bp'|'custom', days:[Day]}`
 **Day**: `{id:<slot>, name, tag, dow:0-6|null (Mon=0), optional:bool, ex:[{name, sets, lo, hi}]}`
 Older saves (one array per fixed session type) are migrated by `normPlan`.
 
 ## Rules to keep
+0. Weights are ALWAYS stored in kg. The unit (`UNIT`) only changes what is shown and typed: use `dv()`/`fw()` to display, `inW()` to fill an input, `outW()` to read one. Never save a converted number.
 1. The app must work with no account and no network (device storage).
 2. History is never rewritten when the split changes (labels are stamped by `stampLabels`).
 3. Stored snapshots from the account backend are frozen: always `clone` before editing (`normCfg` does).
@@ -82,5 +86,5 @@ See `SETUP.md`. In short: commit changed files to GitHub; Cloudflare Pages redep
 
 ## Not built yet
 - Payments (Stripe) and an access check. Plan: `subscriptions` table keyed by user, Stripe Checkout, a Cloudflare Worker or Supabase Edge Function for the webhook, row-level security that only lets paid users save.
-- Privacy policy and terms pages before public launch.
+- Terms of service page before public launch (a basic privacy policy exists in `site/privacy.html`; review it before sharing widely and update it when payments are added).
 - Password-reset new-password screen is written (`cloud.js`, `newpass` mode) but only tested against the mock.

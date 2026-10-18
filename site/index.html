@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="styles/plan.css">
 <link rel="stylesheet" href="styles/people.css">
 <link rel="stylesheet" href="styles/auth.css">
+<link rel="stylesheet" href="styles/guide.css">
 </head>
 <body>
 
@@ -38,10 +39,24 @@
       </svg>
       <div>
         <h1>Plate Log</h1>
-        <div class="sub">Upper / Lower · weights in kg</div>
+        <div class="sub">Strength training log</div>
       </div>
     </div>
-    <div class="status" id="status" role="status"><i></i><span id="statusTxt">Connecting…</span></div>
+    <div class="topright">
+      <div class="status" id="status" role="status"><i></i><span id="statusTxt">Connecting…</span></div>
+      <div class="acctwrap">
+        <button class="acctbtn" id="acctBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="acctMenu" aria-label="Account and settings">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        </button>
+        <div class="acctmenu" id="acctMenu" hidden>
+          <div class="mrow"><div class="eyebrow">Sync status</div><span class="acctmail" id="menuStatus">Connecting…</span></div>
+          <div class="mrow"><div class="eyebrow">Account</div><div class="acct" id="acct"><span class="acctmail">Your log is on this device only.</span></div></div>
+          <div class="mrow"><div class="eyebrow">Weight unit</div>
+            <div class="unitseg" role="group" aria-label="Weight unit"><button type="button" data-unit="kg" aria-pressed="true">kg</button><button type="button" data-unit="lb" aria-pressed="false">lb</button></div></div>
+          <div class="mrow"><a class="plink" href="privacy.html">Privacy policy</a></div>
+        </div>
+      </div>
+    </div>
   </header>
 
   <div class="people" id="people" aria-label="People"></div>
@@ -51,16 +66,19 @@
     <button class="tab" role="tab" id="tab-weeks" data-tab="weeks" aria-controls="panel-weeks">Weeks</button>
     <button class="tab" role="tab" id="tab-year" data-tab="year" aria-controls="panel-year">Year</button>
     <button class="tab" role="tab" id="tab-plan" data-tab="plan" aria-controls="panel-plan">Plan</button>
+    <button class="tab" role="tab" id="tab-guide" data-tab="guide" aria-controls="panel-guide">Guide</button>
   </nav>
 
   <section class="panel" id="panel-log" role="tabpanel" aria-labelledby="tab-log"></section>
   <section class="panel" id="panel-weeks" role="tabpanel" aria-labelledby="tab-weeks" hidden></section>
   <section class="panel" id="panel-year" role="tabpanel" aria-labelledby="tab-year" hidden></section>
   <section class="panel" id="panel-plan" role="tabpanel" aria-labelledby="tab-plan" hidden></section>
+  <section class="panel" id="panel-guide" role="tabpanel" aria-labelledby="tab-guide" hidden></section>
 
   <div class="foot">
     <button class="btn small" id="exportBtn" type="button">Export all sets (CSV)</button>
     <span id="msg" role="status"></span>
+    <a class="plink" href="privacy.html">Privacy policy</a>
   </div>
 </div>
 <datalist id="exlist"></datalist>
@@ -78,6 +96,7 @@
 <script src="js/year.js"></script>
 <script src="js/people.js"></script>
 <script src="js/plan.js"></script>
+<script src="js/guide.js"></script>
 <script src="js/export.js"></script>
 <script src="js/main.js"></script>
 </body>

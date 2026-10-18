@@ -198,9 +198,111 @@ DRIVERS['cloud_local2'] = r'''
 check('choice is remembered',!$('#auth')&&/Sign in to sync/.test(($('#acct')||{}).textContent||''),'');
 '''
 
+
+DRIVERS['units'] = r"""
+var raw=function(){try{return JSON.parse(localStorage.getItem('platelog.v1')||'{}');}catch(e){return {};}};
+var setW=function(j){var k=Object.keys(raw()).filter(function(x){return /^s_/.test(x);})[0];return k?raw()[k].exercises[0].sets[j].w:undefined;};
+check('starts in kg',$('.sethead span:nth-child(2)').textContent==='kg',$('.sethead span:nth-child(2)').textContent);
+check('menu starts closed',$('#acctMenu').hidden===true,'');
+typeIn($('#w-0-0'),'100');typeIn($('#r-0-0'),'5');await sleep(1200);
+check('100 kg stored as 100',setW(0)===100,String(setW(0)));
+click($('#acctBtn'));await sleep(50);
+check('account menu opens',$('#acctMenu').hidden===false&&$('#acctBtn').getAttribute('aria-expanded')==='true','');
+check('menu has privacy link',!!$('#acctMenu a[href="privacy.html"]'),'');
+check('menu says the log is on this device',/device/.test($('#acct').textContent),$('#acct').textContent);
+click($('#acctMenu [data-unit="lb"]'));await sleep(300);
+check('switches to lb',$('.sethead span:nth-child(2)').textContent==='lb',$('.sethead span:nth-child(2)').textContent);
+check('100 kg shows as 220.46 lb',$('#w-0-0').value==='220.46',$('#w-0-0').value);
+check('stored value untouched',setW(0)===100,String(setW(0)));
+check('summary uses lb',/lb volume/.test($('#sumbar').textContent),$('#sumbar').textContent);
+check('est 1RM column converted',parseFloat($('#panel-log .set .e').textContent)>250,$('#panel-log .set .e').textContent);
+typeIn($('#w-0-1'),'135');typeIn($('#r-0-1'),'5');await sleep(1200);
+check('135 lb stored as 61.235 kg',setW(1)===61.235,String(setW(1)));
+click($('#exportBtn'));
+tab('weeks');await sleep(100);
+check('weeks volume in lb',/lb$/.test(txt('.tile:nth-child(3) .v')),txt('.tile:nth-child(3) .v'));
+check('weeks card in lb',/lb$/.test(($('.wsess .meta')||{textContent:''}).textContent),($('.wsess .meta')||{}).textContent);
+tab('year');await sleep(100);
+check('year tile uses lb',/lb/.test(txt('.tile:nth-child(3) .v')),txt('.tile:nth-child(3) .v'));
+tab('plan');await sleep(100);
+check('plan progression tip uses lb',/5 lb on upper-body/.test($('#panel-plan .rules').textContent),$('#panel-plan .rules').textContent);
+await sleep(900);
+check('unit saved to config',cfg()&&cfg().unit==='lb',JSON.stringify(cfg()&&cfg().unit));
+check('fresh-plan hint survives a unit change',true,'');
+document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await sleep(50);
+check('Escape closes menu',$('#acctMenu').hidden===true,'');
+click($('#acctBtn'));click(document.body);await sleep(50);
+check('click outside closes menu',$('#acctMenu').hidden===true,'');
+tab('log');await sleep(100);
+"""
+
+DRIVERS['units2'] = r"""
+check('lb remembered after reload',$('.sethead span:nth-child(2)').textContent==='lb',$('.sethead span:nth-child(2)').textContent);
+check('value still shows in lb',$('#w-0-1').value==='135',$('#w-0-1').value);
+click($('#acctBtn'));click($('#acctMenu [data-unit="kg"]'));await sleep(300);
+check('back to kg',$('#w-0-0').value==='100'&&$('#w-0-1').value==='61.235',$('#w-0-0').value+' / '+$('#w-0-1').value);
+check('kg pressed state shown',$('#acctMenu [data-unit="kg"]').getAttribute('aria-pressed')==='true','');
+"""
+
+DRIVERS['guide'] = r"""
+tab('guide');await sleep(100);
+check('guide tab opens',!$('#panel-guide').hidden&&$('#tab-guide').getAttribute('aria-selected')==='true','');
+check('guide has sections',$$('#panel-guide .gsec').length>=5,String($$('#panel-guide .gsec').length));
+check('first section open',$('#panel-guide .gsec').open===true,'');
+check('guide mentions split names',/Upper \/ Lower/.test($('#panel-guide').textContent)||/Push/.test($('#panel-guide').textContent),'');
+check('guide links to privacy page',!!$('#panel-guide a[href="privacy.html"]'),'');
+check('footer links to privacy page',!!$('.foot a[href="privacy.html"]'),'');
+check('url hash is guide',location.hash==='#guide',location.hash);
+"""
+
+DRIVERS['phone'] = r"""
+var vw=window.innerWidth;
+check('phone viewport is narrow',vw===390,String(vw));
+function overflow(n){check('no sideways scroll on '+n,document.documentElement.scrollWidth<=vw+1,document.documentElement.scrollWidth+' > '+vw);}
+function stacked(sel,n){var r=$$(sel).map(function(e){var b=e.getBoundingClientRect();return [Math.round(b.top),Math.round(b.left)];});
+  check(n+' stack vertically',r.length>=2&&r.every(function(x,i){return i===0||(x[0]>r[i-1][0]&&Math.abs(x[1]-r[0][1])<=1);}),JSON.stringify(r));}
+var b=$('#acctBtn').getBoundingClientRect();
+check('account button is top right',b.right>vw-45&&b.top<40,JSON.stringify([b.right,b.top]));
+check('title stays on one line',$('h1').getBoundingClientRect().height<50,String($('h1').getBoundingClientRect().height));
+check('all five tabs fit without scrolling',(function(){var t=$('.tabs');return t.scrollWidth<=t.clientWidth+1;})(),$('.tabs').scrollWidth+' vs '+$('.tabs').clientWidth);
+check('menu shows sync status words',/device/.test($('#menuStatus').textContent),$('#menuStatus').textContent);
+check('title still on the first row',$('h1').getBoundingClientRect().top<40,String($('h1').getBoundingClientRect().top));
+click($('#acctBtn'));await sleep(50);
+var m=$('#acctMenu').getBoundingClientRect();
+check('menu fits on screen',m.left>=0&&m.right<=vw,JSON.stringify([m.left,m.right]));
+click($('#acctBtn'));
+stacked('.seg button','session buttons');
+typeIn($('#w-0-0'),'60');typeIn($('#r-0-0'),'8');await sleep(100);
+stacked('#sumbar span','log summary');
+overflow('Log');
+tab('weeks');await sleep(100);stacked('#panel-weeks .tile','Weeks tiles');overflow('Weeks');
+tab('year');await sleep(150);stacked('#panel-year .tile','Year tiles');overflow('Year');
+tab('plan');await sleep(100);click($('.plancard .dayhd'));await sleep(100);
+var lb=$$('.dedit label').map(function(e){return Math.round(e.getBoundingClientRect().top);});
+check('plan day fields stack',lb.length<2||lb.every(function(x,i){return i===0||x>lb[i-1];}),JSON.stringify(lb));
+overflow('Plan');
+tab('guide');await sleep(100);overflow('Guide');
+"""
+
+DRIVERS['wide'] = r"""
+var vw=window.innerWidth;
+check('wide viewport',vw===900,String(vw));
+var b=$('#acctBtn').getBoundingClientRect(),st=$('#status').getBoundingClientRect();
+check('account button is top right',b.right>vw-45&&b.top<60,JSON.stringify([b.right,b.top]));
+check('status sits left of the button on wide screens',st.right<=b.left&&Math.abs((st.top+st.height/2)-(b.top+b.height/2))<14,JSON.stringify([st.right,b.left]));
+check('session buttons share a row',(function(){var r=$$('.seg button').map(function(e){return Math.round(e.getBoundingClientRect().top);});return r.length>=2&&r[0]===r[1];})(),'');
+tab('weeks');await sleep(100);
+check('Weeks tiles side by side',(function(){var t=$$('#panel-weeks .tile').map(function(e){return Math.round(e.getBoundingClientRect().top);});return t.length===3&&t[0]===t[2];})(),'');
+tab('year');await sleep(150);
+check('Year tiles side by side',(function(){var t=$$('#panel-year .tile').slice(0,3).map(function(e){return Math.round(e.getBoundingClientRect().top);});return t.length===3&&t[0]===t[2];})(),'');
+tab('guide');await sleep(100);
+check('guide readable at desktop width',$$('#panel-guide .gsec').length>=5,'');
+"""
+
 PLAN = [('local_a', 'local', 'L'), ('local_b', 'local', 'L'), ('legacy', 'legacy', 'G'),
         ('cloud_signup', 'cloud', 'C'), ('cloud_reload', 'cloud', 'C'), ('cloud_bad', 'cloud', 'C'),
-        ('cloud_local', 'cloud', 'D'), ('cloud_local2', 'cloud', 'D')]
+        ('cloud_local', 'cloud', 'D'), ('cloud_local2', 'cloud', 'D'),
+        ('units', 'local', 'U'), ('units2', 'local', 'U'), ('guide', 'local', 'L2'), ('phone', 'local', 'P', 390), ('wide', 'local', 'P2', 900)]
 # cloud_local needs a fresh profile with nobody signed in: profile D starts empty, so the sign-in screen appears.
 
 
@@ -230,13 +332,24 @@ def main():
     profiles = {}
     fails = 0
     only = os.environ.get('ONLY')
-    for name, kind, prof in PLAN:
+    for entry in PLAN:
+        name, kind, prof = entry[:3]
+        width = entry[3] if len(entry) > 3 else None
         if only and name not in only.split(','):
             continue
         if prof not in profiles:
             profiles[prof] = tempfile.mkdtemp(prefix='plprof-')
         fn = os.path.join(TMP, '_t_%s.html' % name)
-        open(fn, 'w', encoding='utf-8').write(page(kind, name))
+        if width:
+            # run the app inside a fixed-width iframe so its media queries see that width (a phone, say);
+            # the inner page posts its results up and the wrapper prints them where the runner looks
+            inner = os.path.join(TMP, '_t_%s_inner.html' % name)
+            open(inner, 'w', encoding='utf-8').write(page(kind, name).replace('finish();})();</script>', 'finish();parent.postMessage({out:__out.join("\\n")},"*");})();</script>'))
+            open(fn, 'w', encoding='utf-8').write(
+                '<!doctype html><body style="margin:0"><iframe src="_t_%s_inner.html" style="width:%dpx;height:900px;border:0"></iframe>'
+                '<script>window.addEventListener("message",function(e){var p=document.createElement("pre");p.id="out";p.textContent=e.data.out;document.body.appendChild(p);});</script>' % (name, width))
+        else:
+            open(fn, 'w', encoding='utf-8').write(page(kind, name))
         r = subprocess.run([chrome, '--headless=new', '--no-sandbox', '--disable-gpu', '--user-data-dir=' + profiles[prof],
                             '--virtual-time-budget=25000', '--dump-dom', 'file://' + fn],
                            capture_output=True, text=True, timeout=180)

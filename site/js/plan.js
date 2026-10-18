@@ -84,7 +84,7 @@ function renderPlan(){
     '<div class="daystack">'+cards+'</div>'+addDay+
     '<p class="muted" style="margin:14px 0;font-size:14px">Sets and rep targets come with each exercise. You can still change them for a single session on the Log tab. Changes here apply to sessions you start from now on. Sessions already logged stay as they were.</p>'+
     '<div class="eyebrow" style="margin:6px 0">How to progress</div>'+
-    '<ul class="card rules"><li>When every set reaches the top of the rep range, add weight next time: about 2.5 kg on upper-body lifts, 5 kg on lower-body lifts. The Log tab flags it for you.</li>'+
+    '<ul class="card rules"><li>When every set reaches the top of the rep range, add weight next time: '+(UNIT==='lb'?'about 5 lb on upper-body lifts, 10 lb':'about 2.5 kg on upper-body lifts, 5 kg')+' on lower-body lifts. The Log tab flags it for you.</li>'+
     '<li>Keep the main lifts one to two reps short of failure. Accessories can go closer.</li>'+
     '<li>Take an easier week every 6 to 8 weeks, or sooner if lifts stall and you feel beaten up.</li></ul>'+
     '<div class="eyebrow" style="margin:6px 0">Easing back in</div>'+

@@ -43,6 +43,9 @@ function normCfg(c){
   var out={people:[],plans:{}};
   if(c&&Array.isArray(c.people))c.people.forEach(function(p){if(p&&p.id&&typeof p.name==='string')out.people.push({id:String(p.id),name:p.name});});
   if(!out.people.length)out.people.push({id:'p1',name:'Me'});
+  /* the weight unit follows the account, so every device agrees */
+  out.unit=(c&&(c.unit==='lb'||c.unit==='kg'))?c.unit:UNIT;
+  setUnitQuiet(out.unit);
   if(c&&c.plans&&typeof c.plans==='object'){
     /* stored snapshots are read-only, so copy and tidy every plan before the page edits it */
     var src=clone(c.plans);
@@ -93,6 +96,8 @@ function localMap(all){
 function setStatus(txt,kind){
   $('#statusTxt').textContent=txt;
   var el=$('#status');el.className='status'+(kind?' '+kind:'');
+  var ms=$('#menuStatus');if(ms)ms.textContent=txt;
+  var ab=$('#acctBtn');if(ab)ab.setAttribute('data-s',kind||'');
 }
 function say(txt){var m=$('#msg');m.textContent=txt;setTimeout(function(){if(m.textContent===txt)m.textContent='';},5000);}
 

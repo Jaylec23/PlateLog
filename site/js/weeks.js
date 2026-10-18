@@ -29,10 +29,10 @@ function renderWeeks(){
       var done=e.sets.filter(isDone);if(!done.length)return '';
       var top=done.slice().sort(function(a,b){return (b.w-a.w)||(b.r-a.r);})[0];
       var best=Math.max.apply(null,done.map(function(x){return e1rm(x.w,x.r);}));
-      return '<tr><td>'+esc(e.name)+'</td><td class="n">'+done.length+'</td><td class="n">'+fmtN(top.w)+' × '+top.r+'</td><td class="n">'+(best?fmtN(Math.round(best*10)/10):'–')+'</td></tr>';
+      return '<tr><td>'+esc(e.name)+'</td><td class="n">'+done.length+'</td><td class="n">'+fw(top.w)+' × '+top.r+'</td><td class="n">'+(best?fmtN(Math.round(dv(best)*10)/10):'–')+'</td></tr>';
     }).join('');
     return '<article class="card wsess"><header><i class="dot" style="background:var(--c-'+s.type+');width:14px;height:14px"></i>'+
-      '<h3>'+esc(nameFor(s.type,s))+'</h3><span class="meta">'+lbl(s.date,true)+' · '+sessSets(s)+' sets · '+fmtN(Math.round(sessVol(s)))+' kg</span>'+
+      '<h3>'+esc(nameFor(s.type,s))+'</h3><span class="meta">'+lbl(s.date,true)+' · '+sessSets(s)+' sets · '+fmtN(Math.round(dv(sessVol(s))))+' '+UNIT+'</span>'+
       '<button type="button" class="btn small open" data-act="open" data-date="'+s.date+'" data-type="'+s.type+'">Open</button></header>'+
       (rows?'<div class="scroll"><table><thead><tr><th>Exercise</th><th class="n">Sets</th><th class="n">Top set</th><th class="n">Est. 1RM</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+
       (s.notes&&s.notes.trim()?'<div class="note">'+esc(s.notes)+'</div>':'')+'</article>';
@@ -45,7 +45,7 @@ function renderWeeks(){
     '<div class="tiles">'+
       '<div class="card tile"><div class="eyebrow">Sessions</div><div class="v">'+inWeek.length+'</div><div class="d">of '+coreDays().length+' core days</div></div>'+
       '<div class="card tile"><div class="eyebrow">Sets</div><div class="v">'+sets+'</div><div class="d">logged</div></div>'+
-      '<div class="card tile"><div class="eyebrow">Volume</div><div class="v">'+fmtN(Math.round(vol))+' kg</div><div class="d">'+(delta==null?'no earlier week to compare':(delta>=0?'+':'')+delta+'% vs last week')+'</div></div>'+
+      '<div class="card tile"><div class="eyebrow">Volume</div><div class="v">'+fmtN(Math.round(dv(vol)))+' '+UNIT+'</div><div class="d">'+(delta==null?'no earlier week to compare':(delta>=0?'+':'')+delta+'% vs last week')+'</div></div>'+
     '</div>'+
     '<div class="strip">'+strip+'</div>'+
     (cards||'<div class="card empty">Nothing logged this week yet. Tap a dashed session above to start one.</div>');

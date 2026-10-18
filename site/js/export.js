@@ -6,14 +6,14 @@ function csvCell(v){var s=String(v==null?'':v);return /[",\n]/.test(s)?'"'+s.rep
 function exportCsv(){
   var list=sessionsList(S.sessions);
   if(!list.length){say('Nothing to export yet.');return;}
-  var rows=[['date','session','exercise','set','kg','reps','est_1rm_kg','session_notes']];
+  var rows=[['date','session','exercise','set',UNIT,'reps','est_1rm_'+UNIT,'session_notes']];
   list.forEach(function(s){
     var first=true;
     s.exercises.forEach(function(e){
       e.sets.forEach(function(x,i){
         if(x.w==null&&x.r==null)return;
         var v=e1rm(x.w,x.r);
-        rows.push([s.date,nameFor(s.type,s),e.name,i+1,x.w==null?'':x.w,x.r==null?'':x.r,v?(Math.round(v*10)/10):'',first?(s.notes||''):'']);
+        rows.push([s.date,nameFor(s.type,s),e.name,i+1,x.w==null?'':Math.round(dv(x.w)*100)/100,x.r==null?'':x.r,v?(Math.round(dv(v)*10)/10):'',first?(s.notes||''):'']);
         first=false;
       });
     });

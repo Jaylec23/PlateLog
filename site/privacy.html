@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Privacy policy · Plate Log</title>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#14191C">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/base.css">
+<style>
+  .legal h1{font-size:40px}
+  .legal h2{font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.04em;text-transform:uppercase;margin:26px 0 6px}
+  .legal p,.legal li{color:var(--ink2);max-width:62ch}
+  .legal li{margin:6px 0}
+  .legal a{color:var(--ink);text-decoration:underline}
+  .legal .back{display:inline-block;margin-bottom:18px;font-size:14px}
+  .legal .upd{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin:6px 0 0}
+</style>
+</head>
+<body>
+<main class="wrap legal">
+  <a class="back" href="./">← Back to Plate Log</a>
+  <h1>Privacy policy</h1>
+  <p class="upd">Last updated 18 October 2026</p>
+
+  <p>Plate Log is a free gym logbook. It is run by an individual, not a company, and this version is a small test. This page explains in plain language what the app stores about you and why.</p>
+
+  <h2>What is stored</h2>
+  <ul>
+    <li><b>Your training log:</b> dates, sessions, exercises, weights, reps, notes, your plan, the names of any people you add inside the app, and your kg or lb choice.</li>
+    <li><b>If you create an account:</b> your email address and a password. Passwords are handled by the sign-in service and are stored scrambled, so the app owner cannot read them.</li>
+    <li><b>On your own device:</b> the app keeps a copy of your log and settings in your browser's storage. This is how it works without an account.</li>
+  </ul>
+
+  <h2>How it is used</h2>
+  <p>Only to run the app: to show your log, keep it in sync between your devices, sign you in, and send the confirmation and password-reset emails you ask for. Your data is not sold, not used for advertising, and there are no analytics or tracking cookies.</p>
+
+  <h2>Who handles it</h2>
+  <ul>
+    <li><b>Supabase</b> provides sign-in and the database that holds your account log. Each account can only read and change its own rows.</li>
+    <li><b>Cloudflare</b> hosts the website and may keep standard server logs, such as your IP address, for security and reliability.</li>
+    <li><b>Google Fonts</b> and <b>jsDelivr</b> supply the fonts and the sign-in code the page loads, so they see your IP address when the page loads.</li>
+  </ul>
+  <p>As the person who runs the app, the owner has administrator access to the database. That access is for keeping the app working, not for reading individual logs.</p>
+
+  <h2>Without an account</h2>
+  <p>If you choose <i>Continue without an account</i>, your log stays only in this browser. It is not uploaded anywhere. Clearing your browser data erases it, so export a CSV first if you want a copy.</p>
+
+  <h2>Your choices</h2>
+  <ul>
+    <li><b>Take a copy:</b> use <i>Export all sets (CSV)</i> at the bottom of the app at any time.</li>
+    <li><b>Remove a person:</b> removing a person inside the app deletes their logs and plan.</li>
+    <li><b>Delete your account and data:</b> ask using the contact below and everything stored for your account will be deleted.</li>
+  </ul>
+
+  <h2>Children</h2>
+  <p>Plate Log is not meant for children under 13.</p>
+
+  <h2>Changes</h2>
+  <p>If this changes in a meaningful way, the date at the top of this page will change. Paid features may be added later, and this page will be updated before that happens.</p>
+
+  <h2>Contact</h2>
+  <p id="contact">For questions or to ask for your data to be deleted, contact the person who gave you the link to Plate Log.</p>
+</main>
+<script src="config.js"></script>
+<script>
+(function(){
+  var c=window.PLATELOG_CONFIG||{},m=String(c.CONTACT_EMAIL||'');
+  if(/^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(m)){
+    var p=document.getElementById('contact');
+    p.textContent='For questions or to ask for your data to be deleted, email ';
+    var a=document.createElement('a');a.href='mailto:'+m;a.textContent=m;p.appendChild(a);p.appendChild(document.createTextNode('.'));
+  }
+})();
+</script>
+</body>
+</html>

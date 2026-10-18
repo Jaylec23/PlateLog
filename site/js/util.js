@@ -27,6 +27,20 @@ function clone(o){return JSON.parse(JSON.stringify(o));}
 function col(type){return 'var(--c-'+(validType(type)?type:'upperA')+')';}
 function use(n){try{return window.claude&&window.claude.use?Promise.resolve(window.claude.use(n)).catch(function(){return null;}):Promise.resolve(null);}catch(e){return Promise.resolve(null);}}
 
+/* ---------- weight unit ----------
+   Everything is stored in kg. The unit only changes what is shown and typed, so switching
+   never alters saved logs and old sessions convert automatically. */
+var KG_LB=2.20462262;
+var UNIT=(function(){try{return localStorage.getItem('platelog.unit')==='lb'?'lb':'kg';}catch(e){return 'kg';}})();
+function setUnitQuiet(u){
+  UNIT=u==='lb'?'lb':'kg';
+  try{localStorage.setItem('platelog.unit',UNIT);}catch(e){}
+}
+function dv(kg){return UNIT==='lb'?kg*KG_LB:kg;}                       /* kg to the shown unit, unrounded (totals, charts) */
+function inW(kg){return kg==null?null:(UNIT==='lb'?Math.round(kg*KG_LB*100)/100:kg);}   /* value for a weight input box */
+function outW(v){return v==null?null:(UNIT==='lb'?Math.round(v/KG_LB*1000)/1000:v);}    /* typed value back to kg */
+function fw(kg){return fmtN(dv(kg));}                                    /* formatted weight in the shown unit */
+
 function e1rm(w,r){if(!(w>0&&r>0)||r>12)return 0;return r===1?w:w*(1+r/30);}
 function isDone(x){return x&&x.r>0&&x.w!=null;}
 function hasContent(doc){

@@ -55,7 +55,7 @@ function lastLine(name,target,last){
   if(!last)return '';
   var e=findEx(last,name);
   if(!e)return '';
-  var parts=e.sets.filter(isDone).map(function(s){return fmtN(s.w)+'×'+s.r;});
+  var parts=e.sets.filter(isDone).map(function(s){return fw(s.w)+'×'+s.r;});
   if(!parts.length)return '';
   var tg=parseTarget(target),add=false;
   if(tg.hi&&e.sets.length>=tg.sets){
@@ -96,7 +96,7 @@ function renderLog(){
     var sets=e.sets.map(function(s,j){
       var ph=lastEx&&lastEx.sets[j]?lastEx.sets[j]:{};
       return '<div class="set" data-j="'+j+'"><span class="idx">'+(j+1)+'</span>'+
-        '<input class="w" id="w-'+i+'-'+j+'" type="number" inputmode="decimal" step="0.5" min="0" placeholder="'+(ph.w!=null?esc(ph.w):'')+'" value="'+(s.w!=null?esc(s.w):'')+'" aria-label="'+esc(e.name)+' set '+(j+1)+' weight in kilograms">'+
+        '<input class="w" id="w-'+i+'-'+j+'" type="number" inputmode="decimal" step="0.5" min="0" placeholder="'+(ph.w!=null?esc(inW(ph.w)):'')+'" value="'+(s.w!=null?esc(inW(s.w)):'')+'" aria-label="'+esc(e.name)+' set '+(j+1)+' weight in '+(UNIT==='lb'?'pounds':'kilograms')+'">'+
         '<span class="x">×</span>'+
         '<input class="r" id="r-'+i+'-'+j+'" type="number" inputmode="numeric" step="1" min="0" placeholder="'+(ph.r!=null?esc(ph.r):'')+'" value="'+(s.r!=null?esc(s.r):'')+'" aria-label="'+esc(e.name)+' set '+(j+1)+' reps">'+
         '<span class="e"></span></div>';
@@ -107,7 +107,7 @@ function renderLog(){
       '<button type="button" class="iconbtn" data-act="rmex" title="Remove exercise" aria-label="Remove '+esc(e.name)+'">×</button></div>'+
       (S.editTarget===i?targetEditor(e,i):'')+
       '<div class="last">'+lastLine(e.name,e.target,last)+'</div>'+
-      '<div class="sethead"><span></span><span>kg</span><span></span><span>reps</span><span>est. 1RM</span></div>'+
+      '<div class="sethead"><span></span><span>'+UNIT+'</span><span></span><span>reps</span><span>est. 1RM</span></div>'+
       sets+
       '<div class="exfoot"><button type="button" class="btn small" data-act="addset">+ Set</button>'+
       '<button type="button" class="btn small ghost" data-act="rmset">− Set</button><span class="exbest"></span></div>'+
@@ -146,14 +146,14 @@ function updateDerived(){
     var best=0;
     $$('.set',exEl).forEach(function(sEl){
       var s=e.sets[+sEl.dataset.j];var v=s?e1rm(s.w,s.r):0;
-      $('.e',sEl).textContent=v?fmtN(Math.round(v*10)/10):'';
+      $('.e',sEl).textContent=v?fmtN(Math.round(dv(v)*10)/10):'';
       if(v>best)best=v;
     });
-    $('.exbest',exEl).textContent=best?'Best est. 1RM '+fmtN(Math.round(best*10)/10)+' kg':'';
+    $('.exbest',exEl).textContent=best?'Best est. 1RM '+fmtN(Math.round(dv(best)*10)/10)+' '+UNIT:'';
   });
   var vol=sessVol(d),n=sessSets(d);
   var sb=$('#sumbar');
-  if(sb)sb.innerHTML='<span><b>'+fmtN(Math.round(vol))+'</b> kg volume</span><span><b>'+n+'</b> sets logged</span>';
+  if(sb)sb.innerHTML='<span><b>'+fmtN(Math.round(dv(vol)))+'</b> '+UNIT+' volume</span><span><b>'+n+'</b> sets logged</span>';
 }
 function setNum(v){if(v===''||v==null)return null;var n=Number(v);return isNaN(n)?null:n;}
 
@@ -162,7 +162,8 @@ function logInput(e){
   if(t.matches('.w,.r')){
     var exEl=t.closest('.ex'),setEl=t.closest('.set');
     var s=d.exercises[+exEl.dataset.i].sets[+setEl.dataset.j];
-    s[t.classList.contains('w')?'w':'r']=setNum(t.value);
+    var nv=setNum(t.value);
+    if(t.classList.contains('w'))s.w=outW(nv);else s.r=nv;
     updateDerived();scheduleSave();
   }else if(t.matches('.exname')){
     d.exercises[+t.closest('.ex').dataset.i].name=t.value;scheduleSave();

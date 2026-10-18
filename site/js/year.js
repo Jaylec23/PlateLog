@@ -54,7 +54,7 @@ function heatSvg(list,year){
       var date=addDays(start,w*7+d);if(date.slice(0,4)!==String(year))continue;
       var ss=by[date],x=left+w*(cell+gap),y=top+d*(cell+gap);
       var fill=ss?col(ss[0].type):'var(--line2)';
-      var tip=lbl(date,true)+(ss?'\n'+ss.map(function(s){return nameFor(s.type,s);}).join(' + ')+'\n'+fmtN(Math.round(ss.reduce(function(a,s){return a+sessVol(s);},0)))+' kg':'');
+      var tip=lbl(date,true)+(ss?'\n'+ss.map(function(s){return nameFor(s.type,s);}).join(' + ')+'\n'+fmtN(Math.round(dv(ss.reduce(function(a,s){return a+sessVol(s);},0))))+' '+UNIT:'');
       out+='<rect x="'+x+'" y="'+y+'" width="'+cell+'" height="'+cell+'" rx="2" style="fill:'+fill+'"'+(date===td?' stroke="currentColor" stroke-width="1.5"':'')+' data-tip="'+ta(tip)+'"/>';
     }
   }
@@ -66,7 +66,7 @@ function volSvg(list,year,W){
   for(var i=0;i<nW;i++){var ws=addDays(start,i*7);weeks.push({start:ws,vol:{},lab:{},total:0,n:0});}
   list.forEach(function(s){
     var idx=Math.floor(Math.round((parse(mondayOf(s.date))-parse(start))/86400000)/7);
-    if(idx<0||idx>=nW)return;var v=sessVol(s);
+    if(idx<0||idx>=nW)return;var v=dv(sessVol(s));
     weeks[idx].vol[s.type]=(weeks[idx].vol[s.type]||0)+v;weeks[idx].lab[s.type]=nameFor(s.type,s);weeks[idx].total+=v;weeks[idx].n++;
   });
   var last=nW;while(last>1&&weeks[last-1].start>today()&&weeks[last-1].total===0)last--;
@@ -92,7 +92,7 @@ function volSvg(list,year,W){
       cum+=h;
     });
     if(w.total>0){
-      var tip='Week of '+lbl(w.start)+'\n'+STACK_ORDER.filter(function(t){return w.vol[t];}).map(function(t){return (w.lab[t]||nameFor(t))+': '+fmtN(Math.round(w.vol[t]))+' kg';}).join('\n')+'\nTotal: '+fmtN(Math.round(w.total))+' kg';
+      var tip='Week of '+lbl(w.start)+'\n'+STACK_ORDER.filter(function(t){return w.vol[t];}).map(function(t){return (w.lab[t]||nameFor(t))+': '+fmtN(Math.round(w.vol[t]))+' '+UNIT;}).join('\n')+'\nTotal: '+fmtN(Math.round(w.total))+' '+UNIT;
       out+='<rect x="'+x+'" y="'+m.t+'" width="'+bw+'" height="'+ph+'" fill="transparent" data-tip="'+ta(tip)+'"/>';
     }
   });
@@ -122,7 +122,7 @@ function lineSvg(pts,W){
   out+='<path d="'+line+'" fill="none" style="stroke:var(--c-lowerA)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
   pts.forEach(function(p,i){
     var x=X(parse(p.date).getTime()),y=Y(p.e1);
-    var tip=lbl(p.date,true)+'\nEst. 1RM '+fmtN(Math.round(p.e1*10)/10)+' kg\nTop set '+fmtN(p.w)+' × '+p.r;
+    var tip=lbl(p.date,true)+'\nEst. 1RM '+fmtN(Math.round(p.e1*10)/10)+' '+UNIT+'\nTop set '+fmtN(p.w)+' × '+p.r;
     var isLast=i===pts.length-1;
     out+='<g class="pt" data-tip="'+ta(tip)+'"><line class="xh" x1="'+x+'" x2="'+x+'" y1="'+m.t+'" y2="'+(m.t+ph)+'"/>'+
       '<circle class="hit" cx="'+x+'" cy="'+y+'" r="14" fill="transparent"/>'+
@@ -165,21 +165,21 @@ function renderYear(){
   h+='<div class="tiles">'+
     '<div class="card tile"><div class="eyebrow">Sessions</div><div class="v">'+list.length+'</div><div class="d">'+(list.length?(Math.round(list.length/wkElapsed*10)/10)+' per week':'none yet')+'</div></div>'+
     '<div class="card tile"><div class="eyebrow">Sets</div><div class="v">'+fmtN(sets)+'</div><div class="d">logged</div></div>'+
-    '<div class="card tile"><div class="eyebrow">Volume</div><div class="v">'+fmtN(Math.round(vol/100)/10)+' t</div><div class="d">'+fmtN(Math.round(vol))+' kg lifted</div></div>'+
+    '<div class="card tile"><div class="eyebrow">Volume</div><div class="v">'+(UNIT==='lb'?fmtN(Math.round(dv(vol)/100)/10)+'k lb':fmtN(Math.round(vol/100)/10)+' t')+'</div><div class="d">'+fmtN(Math.round(dv(vol)))+' '+UNIT+' lifted</div></div>'+
   '</div>';
   /* attendance */
   h+='<div class="card block"><div class="bhead"><h3 class="sechead">Training days</h3></div><div class="scroll">'+heatSvg(list,yr)+'</div>'+
     '<div class="legend">'+legendFor(list).map(function(t){return '<span><i style="background:var(--c-'+t.id+')"></i>'+esc(t.name)+'</span>';}).join('')+'</div></div>';
   /* volume */
   var vs=volSvg(list,yr,W);
-  h+='<div class="card block"><div class="bhead"><h3 class="sechead">Weekly volume</h3><span class="muted mono" style="font-size:12px">kg lifted per week</span></div>'+vs.svg+
+  h+='<div class="card block"><div class="bhead"><h3 class="sechead">Weekly volume</h3><span class="muted mono" style="font-size:12px">'+UNIT+' lifted per week</span></div>'+vs.svg+
     '<div class="legend">'+legendFor(list).map(function(t){return '<span><i style="background:var(--c-'+t.id+')"></i>'+esc(t.name)+'</span>';}).join('')+'</div>'+
-    '<details><summary>View as table</summary><div class="scroll"><table><thead><tr><th>Week of</th><th class="n">Sessions</th><th class="n">Volume (kg)</th></tr></thead><tbody>'+
+    '<details><summary>View as table</summary><div class="scroll"><table><thead><tr><th>Week of</th><th class="n">Sessions</th><th class="n">Volume ('+UNIT+')</th></tr></thead><tbody>'+
     vs.weeks.filter(function(w){return w.total>0;}).map(function(w){return '<tr><td>'+lbl(w.start)+'</td><td class="n">'+w.n+'</td><td class="n">'+fmtN(Math.round(w.total))+'</td></tr>';}).join('')+
     '</tbody></table></div></details></div>';
   /* strength */
   if(sel){
-    var pts=stats[sel].pts.filter(function(p){return p.e1>0;}).sort(function(a,b){return a.date<b.date?-1:1;});
+    var pts=stats[sel].pts.filter(function(p){return p.e1>0;}).sort(function(a,b){return a.date<b.date?-1:1;}).map(function(p){return {date:p.date,e1:dv(p.e1),w:dv(p.w),r:p.r};});
     var opts=keys.sort(function(a,b){return stats[b].pts.length-stats[a].pts.length;}).map(function(k){return '<option value="'+esc(k)+'"'+(k===sel?' selected':'')+'>'+esc(stats[k].name)+'</option>';}).join('');
     h+='<div class="card block"><div class="bhead"><h3 class="sechead">Strength</h3>'+
       '<select class="field" id="exsel" aria-label="Exercise to chart">'+opts+'</select></div>';
@@ -187,8 +187,8 @@ function renderYear(){
       var first=pts[0],lastp=pts[pts.length-1],bestp=pts.reduce(function(a,p){return p.e1>a.e1?p:a;},pts[0]);
       var diff=Math.round((lastp.e1-first.e1)*10)/10;
       h+='<div class="tiles" style="margin-bottom:8px">'+
-        '<div class="card tile"><div class="eyebrow">Best est. 1RM</div><div class="v">'+fmtN(Math.round(bestp.e1*10)/10)+' kg</div><div class="d">'+lbl(bestp.date)+'</div></div>'+
-        '<div class="card tile"><div class="eyebrow">Change</div><div class="v">'+(diff>=0?'+':'')+fmtN(diff)+' kg</div><div class="d">since '+lbl(first.date)+'</div></div>'+
+        '<div class="card tile"><div class="eyebrow">Best est. 1RM</div><div class="v">'+fmtN(Math.round(bestp.e1*10)/10)+' '+UNIT+'</div><div class="d">'+lbl(bestp.date)+'</div></div>'+
+        '<div class="card tile"><div class="eyebrow">Change</div><div class="v">'+(diff>=0?'+':'')+fmtN(diff)+' '+UNIT+'</div><div class="d">since '+lbl(first.date)+'</div></div>'+
         '<div class="card tile"><div class="eyebrow">Sessions</div><div class="v">'+pts.length+'</div><div class="d">with this lift</div></div></div>';
       h+=lineSvg(pts,W);
       h+='<div class="muted mono" style="font-size:12px;margin-top:4px">Estimated one rep max from your best set each session (Epley). Reps above 12 are skipped.</div>';
@@ -203,7 +203,7 @@ function renderYear(){
       return {name:st.name,n:st.pts.length,w:hw.w,r:hw.r,date:hw.date,be:be};
     }).sort(function(a,b){return b.n-a.n;}).slice(0,14);
     h+='<div class="card block"><div class="bhead"><h3 class="sechead">Records</h3></div><div class="scroll"><table><thead><tr><th>Exercise</th><th class="n">Heaviest set</th><th class="n">Best est. 1RM</th><th class="n">Sessions</th></tr></thead><tbody>'+
-      recRows.map(function(r){return '<tr><td>'+esc(r.name)+'</td><td class="n">'+fmtN(r.w)+' × '+r.r+'</td><td class="n">'+(r.be?fmtN(Math.round(r.be*10)/10):'–')+'</td><td class="n">'+r.n+'</td></tr>';}).join('')+
+      recRows.map(function(r){return '<tr><td>'+esc(r.name)+'</td><td class="n">'+fw(r.w)+' × '+r.r+'</td><td class="n">'+(r.be?fmtN(Math.round(dv(r.be)*10)/10):'–')+'</td><td class="n">'+r.n+'</td></tr>';}).join('')+
       '</tbody></table></div></div>';
   }
   el.innerHTML=h;

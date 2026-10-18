@@ -1,5 +1,5 @@
 
-/* account bar + sign-in screen */
+/* account menu (top right) + sign-in screen */
 .acct{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
 .acctmail{font-family:var(--f-mono);font-size:12px;color:var(--muted);overflow-wrap:anywhere}
 .authwrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(24px,env(safe-area-inset-top,0px)) 16px 40px}
@@ -18,3 +18,27 @@
 .authlinks{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px}
 .authlinks button{background:none;border:0;color:var(--ink2);text-decoration:underline;cursor:pointer;padding:6px 0;font-size:13px}
 .authnote{font-size:12px;color:var(--muted);margin-top:14px}
+
+/* top-right cluster: sync status and the account button */
+.topright{display:flex;align-items:center;gap:10px;flex:none}
+.acctwrap{position:relative}
+.acctbtn{width:40px;height:40px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);border-radius:50%;cursor:pointer;color:var(--ink2);padding:0}
+.acctbtn:hover,.acctbtn[aria-expanded="true"]{border-color:var(--ink2);color:var(--ink)}
+.acctmenu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;width:260px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 14px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.acctmenu[hidden]{display:none}
+.mrow{padding:12px 0;border-bottom:1px solid var(--line2);display:grid;gap:8px;justify-items:start}
+.mrow:last-child{border-bottom:0}
+.acctmenu .acct{flex-direction:column;align-items:flex-start;gap:8px;display:flex}
+.acctmail b{color:var(--ink);font-weight:500}
+.unitseg{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.unitseg button{background:var(--input);border:0;padding:8px 20px;min-width:68px;min-height:40px;font-weight:600;cursor:pointer;color:var(--muted)}
+.unitseg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.authnote a{color:var(--ink2)}
+/* phones: no room for the status words, so a coloured dot sits on the button and the words are in the menu */
+.acctbtn{position:relative}
+@media (max-width:520px){
+  .topright .status{display:none}
+  .acctbtn::after{content:'';position:absolute;right:-2px;top:-2px;width:11px;height:11px;border-radius:50%;background:var(--muted);border:2px solid var(--bg)}
+  .acctbtn[data-s="ok"]::after{background:var(--ok)}
+  .acctbtn[data-s="err"]::after{background:var(--c-upperA)}
+}

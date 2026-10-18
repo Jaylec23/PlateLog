@@ -55,7 +55,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:44px;letter-spacing:.0
   font-family:var(--f-display);font-weight:700;font-size:20px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:-1px}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
 .panel{padding-top:18px}
-@media (max-width:420px){.tab{padding:10px 10px 8px;font-size:19px}}
+@media (max-width:420px){.tabs{gap:2px}.tab{padding:10px 6px 8px;font-size:16px;letter-spacing:.03em}}
 
 /* generic */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:4px}
@@ -78,3 +78,13 @@ input[type=number]{-moz-appearance:textfield}
 
 .foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:22px;font-size:13px;color:var(--muted)}
 @media (prefers-reduced-motion:no-preference){.btn,.tab,.chip{transition:border-color .12s,background-color .12s}}
+
+/* phones: keep the title and the top-right account button on one row */
+@media (max-width:520px){
+  .top{flex-wrap:nowrap;align-items:flex-start}
+  .brand{flex:1;min-width:0}
+  .brand>div{min-width:0}
+  .brand svg{width:48px;height:26px}
+  h1{font-size:36px;white-space:nowrap}
+  .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}

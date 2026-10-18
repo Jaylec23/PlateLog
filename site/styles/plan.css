@@ -42,3 +42,7 @@
 
 .tedit .reps{display:flex;align-items:flex-end;gap:6px}
 .pfoot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+
+@media (max-width:560px){
+  .dedit label{flex-basis:100%}
+}
