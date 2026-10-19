@@ -15,6 +15,9 @@
 .authgo{width:100%;min-height:44px}
 .authmsg{min-height:20px;margin-top:10px;font-size:13px;color:var(--ink2)}
 .authmsg.err{color:var(--c-upperA)} .authmsg.ok{color:var(--ok)}
+.author{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:14px 0 12px}
+.author::before,.author::after{content:'';flex:1;border-top:1px solid var(--line)}
+.authguest{display:block}
 .authlinks{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px}
 .authlinks button{background:none;border:0;color:var(--ink2);text-decoration:underline;cursor:pointer;padding:6px 0;font-size:13px}
 .authnote{font-size:12px;color:var(--muted);margin-top:14px}

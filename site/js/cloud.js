@@ -59,8 +59,9 @@ function showAuth(mode){
         '<button class="btn primary authgo" type="submit">'+(isNew?'Save password':isUp?'Create account':'Sign in')+'</button>'+
         '</form>'+
         '<div class="authmsg '+(kind||'')+'" role="status">'+esc(msg||'')+'</div>'+
-        (isNew?'':'<div class="authlinks"><button type="button" data-a="reset">Forgot password?</button><button type="button" data-a="local">Continue without an account</button></div>')+
-        '<p class="authnote">Without an account your log stays on this device only. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a></p></div>';
+        (isNew?'':'<div class="author"><span>or</span></div><button class="btn authgo authguest" type="button" data-a="local">Continue as guest</button>')+
+        (isNew||isUp?'':'<div class="authlinks"><button type="button" data-a="reset">Forgot password?</button></div>')+
+        '<p class="authnote">As a guest your log stays on this device only. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a></p></div>';
     }
     render();
     w.addEventListener('click',function(e){

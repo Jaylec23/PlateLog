@@ -10,6 +10,7 @@ Every update has a version number and a name. Use the name when you want somethi
 | v1.3 | install-prompt | "Tap to log sets" prompt, install banner on the main screen, home-screen install drawings in the Guide |
 | v1.4 | island-and-example-week | Space for the iPhone Dynamic Island, example week on the Weeks tab until real data exists |
 | v1.5 | themes | Appearance sheet: light/dark/auto, six looks, four session colour sets, accent colour, reset. Saved per device and synced to the account |
+| v1.5.1 | guest-button | "Continue as guest" is now a full-width button on the sign-in and create-account screen |
 
 Planned: v1.6 widgets (add, remove and reorder the tiles and charts on Weeks and Year).
 
