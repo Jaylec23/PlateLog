@@ -38,6 +38,24 @@ function setUnit(u){
   fresh.forEach(function(k){if(S.cfg.plans[k])S.cfg.plans[k].fresh=true;});
   renderActive();
 }
+/* ---------- appearance ---------- */
+function setTheme(patch){
+  flush();
+  S.cfg.theme=thSet(patch);
+  /* keep the "fresh plan" hint, as setUnit does */
+  var fresh=Object.keys(S.cfg.plans).filter(function(k){return S.cfg.plans[k].fresh;});
+  scheduleCfg();
+  fresh.forEach(function(k){if(S.cfg.plans[k])S.cfg.plans[k].fresh=true;});
+  renderTheme();
+  /* charts draw with the current colours, so redraw the visible page */
+  renderActive();
+}
+function themeClick(e){
+  if(e.target.id==='themeSheet'||e.target.closest('[data-th-close]')){closeTheme();return;}
+  if(e.target.closest('[data-th-reset]')){setTheme(TH_DEF);return;}
+  var b=e.target.closest('[data-th]');
+  if(b){var p={};p[b.dataset.th]=b.dataset.v;setTheme(p);}
+}
 function toggleMenu(open){
   var m=$('#acctMenu'),b=$('#acctBtn');
   m.hidden=!open;b.setAttribute('aria-expanded',String(open));
@@ -76,10 +94,24 @@ $('#panel-year').addEventListener('change',function(e){if(e.target.id==='exsel')
 $('#exportBtn').addEventListener('click',exportCsv);
 $('#install').addEventListener('click',installClick);
 $('#panel-guide').addEventListener('click',guideClick);
+$('#themeOpen').addEventListener('click',function(){toggleMenu(false);openTheme();});
+$('#themeSheet').addEventListener('click',themeClick);
 $('#acctBtn').addEventListener('click',function(){toggleMenu($('#acctMenu').hidden);});
 $('.unitseg').addEventListener('click',function(e){var b=e.target.closest('[data-unit]');if(b)setUnit(b.dataset.unit);});
 document.addEventListener('click',function(e){if(!$('#acctMenu').hidden&&!e.target.closest('.acctwrap'))toggleMenu(false);});
-document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('#acctMenu').hidden){toggleMenu(false);$('#acctBtn').focus();}});
+document.addEventListener('keydown',function(e){
+  var sh=$('#themeSheet');
+  if(sh&&!sh.hidden){
+    if(e.key==='Escape'){closeTheme();return;}
+    if(e.key==='Tab'){/* keep focus inside the open sheet */
+      var f=$$('button',sh).filter(function(x){return x.offsetParent!==null;});
+      if(f.length){var a=document.activeElement;
+        if(e.shiftKey&&(a===f[0]||!sh.contains(a))){e.preventDefault();f[f.length-1].focus();}
+        else if(!e.shiftKey&&(a===f[f.length-1]||!sh.contains(a))){e.preventDefault();f[0].focus();}}
+    }
+    return;
+  }
+  if(e.key==='Escape'&&!$('#acctMenu').hidden){toggleMenu(false);$('#acctBtn').focus();}});
 document.addEventListener('pointermove',showTip);
 document.addEventListener('pointerdown',showTip);
 window.addEventListener('scroll',function(){tip.hidden=true;},{passive:true});

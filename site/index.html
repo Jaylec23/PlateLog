@@ -24,6 +24,8 @@
 <link rel="stylesheet" href="styles/people.css">
 <link rel="stylesheet" href="styles/auth.css">
 <link rel="stylesheet" href="styles/guide.css">
+<link rel="stylesheet" href="styles/theme.css">
+<script src="js/theme.js"></script>
 </head>
 <body>
 
@@ -52,6 +54,7 @@
         <div class="acctmenu" id="acctMenu" hidden>
           <div class="mrow"><div class="eyebrow">Sync status</div><span class="acctmail" id="menuStatus">Connecting…</span></div>
           <div class="mrow"><div class="eyebrow">Account</div><div class="acct" id="acct"><span class="acctmail">Your log is on this device only.</span></div></div>
+          <div class="mrow"><button type="button" class="plink thopen" id="themeOpen">Appearance</button></div>
           <div class="mrow"><a class="plink" href="privacy.html">Privacy policy</a></div>
         </div>
       </div>
@@ -87,6 +90,12 @@
     <button class="btn small" id="exportBtn" type="button">Export all sets (CSV)</button>
     <span id="msg" role="status"></span>
     <a class="plink" href="privacy.html">Privacy policy</a>
+  </div>
+</div>
+<div class="sheetbg" id="themeSheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="themeTitle">
+    <div class="sheethead"><h2 id="themeTitle">Appearance</h2><button type="button" class="btn small primary" data-th-close>Done</button></div>
+    <div id="themeBody"></div>
   </div>
 </div>
 <datalist id="exlist"></datalist>

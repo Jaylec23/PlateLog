@@ -163,6 +163,9 @@ typeIn($('#w-0-1'),'82.5');typeIn($('input.r'),'6');await sleep(2000);
 check('new set saved to account',docs().some(function(d){return d.data.exercises&&d.data.exercises[0].sets[1]&&d.data.exercises[0].sets[1].w===82.5;}),'');
 check('session stored',!!(JSON.parse(localStorage.getItem('FAKE_DB')||'{}').session),'');
 check('rows belong to the user',docs().every(function(d){return d.user_id==='u-0';}),'');
+click($('#themeOpen'));await sleep(50);
+click($('[data-th="look"][data-v="forest"]'));await sleep(2000);
+check('look saved to the account config',docs().some(function(d){return d.data&&d.data.theme&&d.data.theme.look==='forest';}),JSON.stringify(docs().map(function(d){return d.data&&d.data.theme;})));
 '''
 
 DRIVERS['cloud_reload'] = r'''
@@ -248,6 +251,56 @@ check('value still shows in lb',$('#w-0-1').value==='135',$('#w-0-1').value);
 click($('.unitseg [data-unit="kg"]'));await sleep(300);
 check('back to kg',$('#w-0-0').value==='100'&&$('#w-0-1').value==='61.235',$('#w-0-0').value+' / '+$('#w-0-1').value);
 check('kg pressed state shown',$('.unitseg [data-unit="kg"]').getAttribute('aria-pressed')==='true'&&$('.unitseg [data-unit="lb"]').getAttribute('aria-pressed')==='false','');
+"""
+
+DRIVERS['theme'] = r"""
+var root=document.documentElement,bg=function(){return getComputedStyle(root).getPropertyValue('--bg').trim();};
+var ink=function(){return getComputedStyle(root).getPropertyValue('--ink').trim();};
+check('sheet starts closed',$('#themeSheet').hidden===true,'');
+click($('#acctBtn'));await sleep(50);
+check('menu has Appearance',!!$('#themeOpen'),'');
+click($('#themeOpen'));await sleep(50);
+check('sheet opens and menu closes',$('#themeSheet').hidden===false&&$('#acctMenu').hidden===true,'');
+check('sheet has mode, 6 looks, 4 colour sets, accents',$$('[data-th="mode"]').length===3&&$$('[data-th="look"]').length===6&&$$('[data-th="sc"]').length===4&&$$('[data-th="accent"]').length===8,'');
+check('defaults selected',$('[data-th="look"][data-v="plate"]').getAttribute('aria-pressed')==='true'&&$('[data-th="mode"][data-v="auto"]').getAttribute('aria-pressed')==='true','');
+check('default leaves no inline colours',!root.style.getPropertyValue('--bg'),root.getAttribute('style')||'');
+click($('[data-th="mode"][data-v="dark"]'));await sleep(80);
+check('dark mode applied',root.getAttribute('data-theme')==='dark'&&bg()==='#101417',bg());
+click($('[data-th="mode"][data-v="light"]'));await sleep(80);
+check('light mode applied',root.getAttribute('data-theme')==='light'&&bg()==='#E9ECED',bg());
+click($('[data-th="look"][data-v="mono"]'));await sleep(80);
+check('Black & white look in light mode',bg()==='#FFFFFF'&&ink()==='#000000',bg()+' '+ink());
+click($('[data-th="mode"][data-v="dark"]'));await sleep(80);
+check('same look follows into dark mode',bg()==='#000000',bg());
+click($('[data-th="sc"][data-v="cb"]'));await sleep(80);
+check('colour-blind colours applied in dark mode',getComputedStyle(root).getPropertyValue('--c-upperA').trim()==='#E8743B',getComputedStyle(root).getPropertyValue('--c-upperA').trim());
+click($('[data-th="accent"][data-v="blue"]'));await sleep(1300);
+check('accent applied with readable text',getComputedStyle(root).getPropertyValue('--accent').trim()==='#6B94EA'&&getComputedStyle(root).getPropertyValue('--on-accent').trim()==='#000000',getComputedStyle(root).getPropertyValue('--accent').trim());
+check('selected options use the accent',getComputedStyle($('.thseg button[aria-pressed="true"]')).backgroundColor==='rgb(107, 148, 234)',getComputedStyle($('.thseg button[aria-pressed="true"]')).backgroundColor);
+check('theme saved to config',cfg()&&cfg().theme&&cfg().theme.look==='mono'&&cfg().theme.accent==='blue',JSON.stringify(cfg()&&cfg().theme));
+check('theme kept on this device',(JSON.parse(localStorage.getItem('platelog.theme')||'{}')).sc==='cb','');
+tab('year');await sleep(100);
+check('year page still draws',$$('#panel-year .tile').length>0,'');
+document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await sleep(50);
+check('Escape closes the sheet',$('#themeSheet').hidden===true,'');
+click($('#themeOpen'));await sleep(50);
+click($('#themeSheet'));await sleep(50);
+check('tapping the backdrop closes it',$('#themeSheet').hidden===true,'');
+click($('#themeOpen'));await sleep(50);
+click($('[data-th-close]'));await sleep(50);
+check('Done closes it',$('#themeSheet').hidden===true,'');
+tab('log');await sleep(50);
+"""
+
+DRIVERS['theme2'] = r"""
+var root=document.documentElement;
+check('look remembered after reload',root.getAttribute('data-theme')==='dark'&&getComputedStyle(root).getPropertyValue('--bg').trim()==='#000000',getComputedStyle(root).getPropertyValue('--bg').trim());
+check('accent remembered after reload',getComputedStyle(root).getPropertyValue('--accent').trim()==='#6B94EA','');
+click($('#themeOpen'));await sleep(50);
+check('sheet shows the saved choices',$('[data-th="look"][data-v="mono"]').getAttribute('aria-pressed')==='true'&&$('[data-th="sc"][data-v="cb"]').getAttribute('aria-pressed')==='true'&&$('[data-th="accent"][data-v="blue"]').getAttribute('aria-pressed')==='true','');
+click($('[data-th-reset]'));await sleep(80);
+check('reset clears every colour override',!root.getAttribute('style')&&!root.getAttribute('data-theme'),root.getAttribute('style')||'');
+check('reset selects the defaults',$('[data-th="look"][data-v="plate"]').getAttribute('aria-pressed')==='true','');
 """
 
 DRIVERS['guide'] = r"""
@@ -404,7 +457,7 @@ check('banner stays gone after a reload',$('#install').hidden===true,'');
 PLAN = [('local_a', 'local', 'L'), ('local_b', 'local', 'L'), ('legacy', 'legacy', 'G'),
         ('cloud_signup', 'cloud', 'C'), ('cloud_reload', 'cloud', 'C'), ('cloud_bad', 'cloud', 'C'),
         ('cloud_local', 'cloud', 'D'), ('cloud_local2', 'cloud', 'D'),
-        ('units', 'local', 'U'), ('units2', 'local', 'U'), ('guide', 'local', 'L2'), ('accordion', 'local', 'A'), ('install', 'local', 'I'), ('install2', 'local', 'I'), ('phone', 'local', 'P', 390), ('wide', 'local', 'P2', 900)]
+        ('units', 'local', 'U'), ('units2', 'local', 'U'), ('theme', 'local', 'T'), ('theme2', 'local', 'T'), ('guide', 'local', 'L2'), ('accordion', 'local', 'A'), ('install', 'local', 'I'), ('install2', 'local', 'I'), ('phone', 'local', 'P', 390), ('wide', 'local', 'P2', 900)]
 # cloud_local needs a fresh profile with nobody signed in: profile D starts empty, so the sign-in screen appears.
 
 

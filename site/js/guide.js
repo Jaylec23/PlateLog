@@ -86,6 +86,13 @@ function renderGuide(){
       'On a custom split you can rename days, add up to six, and move them around.',
       'Changes apply to sessions you start from then on.'
     ])+
+    guideSection('Appearance',[
+      'Open the person icon at the top right and tap <b>Appearance</b>.',
+      '<b>Mode</b> sets light, dark or Auto, which follows your phone or computer.',
+      '<b>Look</b> changes the background and text colours. <b>Session colours</b> changes the colours used for your sessions on every page, and one option is friendly to colour-blind people.',
+      '<b>Accent</b> colours the selected tab, buttons and highlights. <b>Reset to default</b> puts everything back.',
+      'Your choices are saved on this device and follow your account to your other devices.'
+    ])+
     guideSection('Units, people and your account',[
       '<b>kg or lb:</b> use the <b>kg | lb</b> switch under the person icon at the top right. Your logs are stored in kg and converted on screen, so you can switch whenever you like and nothing is lost.',
       '<b>More than one person:</b> <b>+ Add person</b> under the title gives someone their own logs and plan, handy if you share a device.',

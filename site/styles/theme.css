@@ -1,0 +1,28 @@
+/* Plate Log: Appearance sheet. The colours themselves are applied by js/theme.js; see docs/ARCHITECTURE.md. */
+.thopen{font-size:13px}
+.sheetbg{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
+.sheetbg[hidden]{display:none}
+.sheet{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px 12px 0 0;width:100%;max-width:520px;max-height:88vh;overflow:auto;
+  padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.sheethead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;position:sticky;top:-16px;background:var(--surface);padding:4px 0 8px;z-index:1}
+.sheethead h2{font-family:var(--f-display);font-weight:700;font-size:26px;letter-spacing:.04em;text-transform:uppercase;margin:0}
+.thsec{padding:12px 0;border-top:1px solid var(--line2)}
+.thsec:first-of-type{border-top:0}
+.thnote{font-size:13px;margin:8px 0 0}
+.thseg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-top:8px}
+.thseg button{background:var(--input);color:var(--muted);border:0;padding:8px 18px;min-height:40px;min-width:76px;font-weight:600;cursor:pointer}
+.thseg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.thgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.thcard{background:var(--input);color:var(--ink);border:2px solid var(--line);border-radius:6px;padding:8px;cursor:pointer;text-align:left;display:grid;gap:6px;min-height:44px}
+.thcard[aria-pressed="true"]{border-color:var(--accent)}
+.thname{font-size:13px;font-weight:600}
+.thprev{display:flex;align-items:center;gap:4px;height:30px;padding:0 6px;border:1px solid;border-radius:4px}
+.thprev i{width:26px;height:18px;border:1px solid;border-radius:3px}
+.thprev b{width:6px;height:18px;border-radius:2px}
+.thdots{display:flex;gap:4px;height:30px;align-items:center}
+.thdots i{width:18px;height:18px;border-radius:50%}
+.thacc{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.thdot{background:none;border:2px solid transparent;border-radius:50%;padding:3px;width:44px;height:44px;cursor:pointer;display:grid;place-items:center}
+.thdot span{width:28px;height:28px;border-radius:50%;border:1px solid var(--line)}
+.thdot[aria-pressed="true"]{border-color:var(--ink)}
+@media (min-width:600px){.sheetbg{align-items:center}.sheet{border-radius:12px}}

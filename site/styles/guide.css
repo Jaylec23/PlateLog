@@ -27,7 +27,7 @@
 .gintro{margin:0 0 10px;color:var(--ink2)}
 .platseg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-bottom:14px}
 .platseg button{background:var(--input);border:0;padding:8px 18px;min-height:38px;font-weight:600;cursor:pointer;color:var(--muted)}
-.platseg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.platseg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 .ginstall [data-for][hidden]{display:none}
 .isteps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px}
 .istep{display:flex;align-items:center;gap:14px}

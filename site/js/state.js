@@ -46,6 +46,9 @@ function normCfg(c){
   /* the weight unit follows the account, so every device agrees */
   out.unit=(c&&(c.unit==='lb'||c.unit==='kg'))?c.unit:UNIT;
   setUnitQuiet(out.unit);
+  /* so does the look; an account with no saved look keeps whatever this device already uses */
+  out.theme=thNorm(c&&c.theme?c.theme:TH);
+  thAdopt(out.theme);
   if(c&&c.plans&&typeof c.plans==='object'){
     /* stored snapshots are read-only, so copy and tidy every plan before the page edits it */
     var src=clone(c.plans);

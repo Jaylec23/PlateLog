@@ -32,7 +32,7 @@
 .acctmail b{color:var(--ink);font-weight:500}
 .unitseg{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
 .unitseg button{background:var(--input);border:0;padding:8px 20px;min-width:68px;min-height:40px;font-weight:600;cursor:pointer;color:var(--muted)}
-.unitseg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.unitseg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 .authnote a{color:var(--ink2)}
 /* phones: no room for the status words, so a coloured dot sits on the button and the words are in the menu */
 .acctbtn{position:relative}
