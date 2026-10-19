@@ -144,70 +144,108 @@ function renderYear(){
   if(!real.length){src=demoSessions();demo=true;}
   var list=src.filter(function(s){return s.date.slice(0,4)===String(yr);});
   if(demo&&!list.length)list=src;
-  var W=Math.max(280,el.clientWidth-30);
-  var vol=list.reduce(function(a,s){return a+sessVol(s);},0),sets=list.reduce(function(a,s){return a+sessSets(s);},0);
-  var wkElapsed=1;
+  var c={yr:yr,all:src,list:list,demo:demo,W:Math.max(280,el.clientWidth-30)};
+  c.vol=list.reduce(function(a,s){return a+sessVol(s);},0);c.sets=list.reduce(function(a,s){return a+sessSets(s);},0);
+  c.wkElapsed=1;
   if(list.length){
     var firstW=mondayOf(list[0].date),lastW=mondayOf(list[list.length-1].date);
-    wkElapsed=Math.max(1,Math.round((parse(lastW)-parse(firstW))/604800000)+1);
+    c.wkElapsed=Math.max(1,Math.round((parse(lastW)-parse(firstW))/604800000)+1);
   }
-  var stats=exStats(list),keys=Object.keys(stats);
-  var sel=S.exSel&&stats[S.exSel]?S.exSel:null;
+  c.stats=exStats(list);c.keys=Object.keys(c.stats);
+  var sel=S.exSel&&c.stats[S.exSel]?S.exSel:null;
   if(!sel){
-    for(var i=0;i<MAIN_LIFTS.length;i++){if(stats[MAIN_LIFTS[i]]){sel=MAIN_LIFTS[i];break;}}
-    if(!sel&&keys.length)sel=keys.sort(function(a,b){return stats[b].pts.length-stats[a].pts.length;})[0];
+    for(var i=0;i<MAIN_LIFTS.length;i++){if(c.stats[MAIN_LIFTS[i]]){sel=MAIN_LIFTS[i];break;}}
+    if(!sel&&c.keys.length)sel=c.keys.slice().sort(function(a,b){return c.stats[b].pts.length-c.stats[a].pts.length;})[0];
   }
+  c.sel=sel;
   var h='';
   if(demo)h+='<div class="demo">Example preview. These numbers are made up so you can see the layout. Your own sessions replace them as soon as you log one.</div>';
   h+='<div class="nav"><span class="lbl">'+yr+' progress'+(who()?' · '+esc(who()):'')+'</span><div class="yearsel">'+
     '<button type="button" class="btn small" data-act="yr-prev" aria-label="Previous year">←</button>'+
     '<button type="button" class="btn small" data-act="yr-next" aria-label="Next year"'+(yr>=new Date().getFullYear()?' disabled':'')+'>→</button></div></div>';
-  h+='<div class="tiles">'+
-    '<div class="card tile"><div class="eyebrow">Sessions</div><div class="v">'+list.length+'</div><div class="d">'+(list.length?(Math.round(list.length/wkElapsed*10)/10)+' per week':'none yet')+'</div></div>'+
-    '<div class="card tile"><div class="eyebrow">Sets</div><div class="v">'+fmtN(sets)+'</div><div class="d">logged</div></div>'+
-    '<div class="card tile"><div class="eyebrow">Volume</div><div class="v">'+(UNIT==='lb'?fmtN(Math.round(dv(vol)/100)/10)+'k lb':fmtN(Math.round(vol/100)/10)+' t')+'</div><div class="d">'+fmtN(Math.round(dv(vol)))+' '+UNIT+' lifted</div></div>'+
-  '</div>';
-  /* attendance */
-  h+='<div class="card block"><div class="bhead"><h3 class="sechead">Training days</h3></div><div class="scroll">'+heatSvg(list,yr)+'</div>'+
-    '<div class="legend">'+legendFor(list).map(function(t){return '<span><i style="background:var(--c-'+t.id+')"></i>'+esc(t.name)+'</span>';}).join('')+'</div></div>';
-  /* volume */
-  var vs=volSvg(list,yr,W);
-  h+='<div class="card block"><div class="bhead"><h3 class="sechead">Weekly volume</h3><span class="muted mono" style="font-size:12px">'+UNIT+' lifted per week</span></div>'+vs.svg+
-    '<div class="legend">'+legendFor(list).map(function(t){return '<span><i style="background:var(--c-'+t.id+')"></i>'+esc(t.name)+'</span>';}).join('')+'</div>'+
+  el.innerHTML=h+wgBar('year')+wgBlocks('year',c);
+}
+
+/* ---------- blocks on this page (framework in widgets.js) ---------- */
+function yearLegend(list){return '<div class="legend">'+legendFor(list).map(function(t){return '<span><i style="background:var(--c-'+t.id+')"></i>'+esc(t.name)+'</span>';}).join('')+'</div>';}
+wgReg('year','y_sessions','tile','Sessions','Sessions logged this year and your average per week.',true,function(c){
+  return wgTile('Sessions',c.list.length,c.list.length?(Math.round(c.list.length/c.wkElapsed*10)/10)+' per week':'none yet');});
+wgReg('year','y_sets','tile','Sets','Sets logged this year.',true,function(c){return wgTile('Sets',fmtN(c.sets),'logged');});
+wgReg('year','y_volume','tile','Volume','Total weight lifted this year.',true,function(c){
+  return wgTile('Volume',UNIT==='lb'?fmtN(Math.round(dv(c.vol)/100)/10)+'k lb':fmtN(Math.round(c.vol/100)/10)+' t',fmtN(Math.round(dv(c.vol)))+' '+UNIT+' lifted');});
+wgReg('year','y_reps','tile','Total reps','Every rep you completed this year.',false,function(c){return wgTile('Reps',fmtN(totalReps(c.list)),'completed');});
+wgReg('year','y_days','tile','Training days','How many different days you trained this year.',false,function(c){
+  var n=distinctDays(c.list),now=new Date(),isNow=c.yr===now.getFullYear();
+  var elapsed=isNow?Math.round((parse(today())-parse(c.yr+'-01-01'))/86400000)+1:((c.yr%4===0&&c.yr%100!==0)||c.yr%400===0?366:365);
+  return wgTile('Training days',n,Math.round(n/elapsed*100)+'% of '+(isNow?'the year so far':'the year'));});
+wgReg('year','y_wstreak','tile','Week streak','Weeks in a row with at least one session, and your best run.',false,function(c){
+  var wk={};c.all.forEach(function(s){wk[mondayOf(s.date)]=1;});
+  var keys=Object.keys(wk).sort(),best=0,run=0,prev=null;
+  keys.forEach(function(k){run=(prev&&addDays(prev,7)===k)?run+1:1;if(run>best)best=run;prev=k;});
+  /* this week still counts if it is not over yet, so start from last week when nothing is logged today */
+  var cur=0,w=mondayOf(today());if(!wk[w])w=addDays(w,-7);
+  while(wk[w]){cur++;w=addDays(w,-7);}
+  return wgTile('Week streak',cur+(cur===1?' week':' weeks'),'best '+best+(best===1?' week':' weeks'));});
+wgReg('year','y_prs','tile','Personal records','Times you beat your previous best estimated 1RM this year.',false,function(c){
+  var n=prEvents(c.all).filter(function(p){return p.date.slice(0,4)===String(c.yr);}).length;
+  return wgTile('Records',n,'new bests in '+c.yr);});
+wgReg('year','y_avgvol','tile','Average session','Average volume per session this year.',false,function(c){
+  return wgTile('Avg session',c.list.length?fmtN(Math.round(dv(c.vol/c.list.length)))+' '+UNIT:'–','volume per session');});
+wgReg('year','y_heat','block','Training days chart','Every day of the year, coloured by the session you did.',true,function(c){
+  return '<div class="bhead"><h3 class="sechead">Training days</h3></div><div class="scroll">'+heatSvg(c.list,c.yr)+'</div>'+yearLegend(c.list);});
+wgReg('year','y_vol','block','Weekly volume','Volume lifted each week, stacked by session.',true,function(c){
+  var vs=volSvg(c.list,c.yr,c.W);
+  return '<div class="bhead"><h3 class="sechead">Weekly volume</h3><span class="muted mono" style="font-size:12px">'+UNIT+' lifted per week</span></div>'+vs.svg+yearLegend(c.list)+
     '<details><summary>View as table</summary><div class="scroll"><table><thead><tr><th>Week of</th><th class="n">Sessions</th><th class="n">Volume ('+UNIT+')</th></tr></thead><tbody>'+
     vs.weeks.filter(function(w){return w.total>0;}).map(function(w){return '<tr><td>'+lbl(w.start)+'</td><td class="n">'+w.n+'</td><td class="n">'+fmtN(Math.round(w.total))+'</td></tr>';}).join('')+
-    '</tbody></table></div></details></div>';
-  /* strength */
-  if(sel){
-    var pts=stats[sel].pts.filter(function(p){return p.e1>0;}).sort(function(a,b){return a.date<b.date?-1:1;}).map(function(p){return {date:p.date,e1:dv(p.e1),w:dv(p.w),r:p.r};});
-    var opts=keys.sort(function(a,b){return stats[b].pts.length-stats[a].pts.length;}).map(function(k){return '<option value="'+esc(k)+'"'+(k===sel?' selected':'')+'>'+esc(stats[k].name)+'</option>';}).join('');
-    h+='<div class="card block"><div class="bhead"><h3 class="sechead">Strength</h3>'+
-      '<select class="field" id="exsel" aria-label="Exercise to chart">'+opts+'</select></div>';
-    if(pts.length>=2){
-      var first=pts[0],lastp=pts[pts.length-1],bestp=pts.reduce(function(a,p){return p.e1>a.e1?p:a;},pts[0]);
-      var diff=Math.round((lastp.e1-first.e1)*10)/10;
-      h+='<div class="tiles" style="margin-bottom:8px">'+
-        '<div class="card tile"><div class="eyebrow">Best est. 1RM</div><div class="v">'+fmtN(Math.round(bestp.e1*10)/10)+' '+UNIT+'</div><div class="d">'+lbl(bestp.date)+'</div></div>'+
-        '<div class="card tile"><div class="eyebrow">Change</div><div class="v">'+(diff>=0?'+':'')+fmtN(diff)+' '+UNIT+'</div><div class="d">since '+lbl(first.date)+'</div></div>'+
-        '<div class="card tile"><div class="eyebrow">Sessions</div><div class="v">'+pts.length+'</div><div class="d">with this lift</div></div></div>';
-      h+=lineSvg(pts,W);
-      h+='<div class="muted mono" style="font-size:12px;margin-top:4px">Estimated one rep max from your best set each session (Epley). Reps above 12 are skipped.</div>';
-    }else{
-      h+='<div class="empty">Log this lift in two or more sessions and the trend line appears here.</div>';
-    }
-    h+='</div>';
-    /* records */
-    var recRows=keys.map(function(k){
-      var st=stats[k],hw=st.pts.reduce(function(a,p){return p.w>a.w||(p.w===a.w&&p.r>a.r)?p:a;},st.pts[0]);
-      var be=Math.max.apply(null,st.pts.map(function(p){return p.e1;}));
-      return {name:st.name,n:st.pts.length,w:hw.w,r:hw.r,date:hw.date,be:be};
-    }).sort(function(a,b){return b.n-a.n;}).slice(0,14);
-    h+='<div class="card block"><div class="bhead"><h3 class="sechead">Records</h3></div><div class="scroll"><table><thead><tr><th>Exercise</th><th class="n">Heaviest set</th><th class="n">Best est. 1RM</th><th class="n">Sessions</th></tr></thead><tbody>'+
-      recRows.map(function(r){return '<tr><td>'+esc(r.name)+'</td><td class="n">'+fw(r.w)+' × '+r.r+'</td><td class="n">'+(r.be?fmtN(Math.round(dv(r.be)*10)/10):'–')+'</td><td class="n">'+r.n+'</td></tr>';}).join('')+
-      '</tbody></table></div></div>';
+    '</tbody></table></div></details>';});
+wgReg('year','y_strength','block','Strength chart','Estimated one rep max over time for any exercise you pick.',true,function(c){
+  var sel=c.sel;if(!sel)return '';
+  var stats=c.stats,keys=c.keys;
+  var pts=stats[sel].pts.filter(function(p){return p.e1>0;}).sort(function(a,b){return a.date<b.date?-1:1;}).map(function(p){return {date:p.date,e1:dv(p.e1),w:dv(p.w),r:p.r};});
+  var opts=keys.slice().sort(function(a,b){return stats[b].pts.length-stats[a].pts.length;}).map(function(k){return '<option value="'+esc(k)+'"'+(k===sel?' selected':'')+'>'+esc(stats[k].name)+'</option>';}).join('');
+  var h='<div class="bhead"><h3 class="sechead">Strength</h3><select class="field" id="exsel" aria-label="Exercise to chart">'+opts+'</select></div>';
+  if(pts.length>=2){
+    var first=pts[0],lastp=pts[pts.length-1],bestp=pts.reduce(function(a,p){return p.e1>a.e1?p:a;},pts[0]);
+    var diff=Math.round((lastp.e1-first.e1)*10)/10;
+    h+='<div class="tiles" style="margin-bottom:8px">'+
+      '<div class="card tile"><div class="eyebrow">Best est. 1RM</div><div class="v">'+fmtN(Math.round(bestp.e1*10)/10)+' '+UNIT+'</div><div class="d">'+lbl(bestp.date)+'</div></div>'+
+      '<div class="card tile"><div class="eyebrow">Change</div><div class="v">'+(diff>=0?'+':'')+fmtN(diff)+' '+UNIT+'</div><div class="d">since '+lbl(first.date)+'</div></div>'+
+      '<div class="card tile"><div class="eyebrow">Sessions</div><div class="v">'+pts.length+'</div><div class="d">with this lift</div></div></div>';
+    h+=lineSvg(pts,c.W);
+    h+='<div class="muted mono" style="font-size:12px;margin-top:4px">Estimated one rep max from your best set each session (Epley). Reps above 12 are skipped.</div>';
+  }else{
+    h+='<div class="empty">Log this lift in two or more sessions and the trend line appears here.</div>';
   }
-  el.innerHTML=h;
-}
+  return h;});
+wgReg('year','y_records','block','Records table','Your heaviest set and best estimated 1RM for each exercise.',true,function(c){
+  if(!c.sel)return '';
+  var stats=c.stats;
+  var recRows=c.keys.map(function(k){
+    var st=stats[k],hw=st.pts.reduce(function(a,p){return p.w>a.w||(p.w===a.w&&p.r>a.r)?p:a;},st.pts[0]);
+    var be=Math.max.apply(null,st.pts.map(function(p){return p.e1;}));
+    return {name:st.name,n:st.pts.length,w:hw.w,r:hw.r,date:hw.date,be:be};
+  }).sort(function(a,b){return b.n-a.n;}).slice(0,14);
+  return '<div class="bhead"><h3 class="sechead">Records</h3></div><div class="scroll"><table><thead><tr><th>Exercise</th><th class="n">Heaviest set</th><th class="n">Best est. 1RM</th><th class="n">Sessions</th></tr></thead><tbody>'+
+    recRows.map(function(r){return '<tr><td>'+esc(r.name)+'</td><td class="n">'+fw(r.w)+' × '+r.r+'</td><td class="n">'+(r.be?fmtN(Math.round(dv(r.be)*10)/10):'–')+'</td><td class="n">'+r.n+'</td></tr>';}).join('')+
+    '</tbody></table></div>';});
+wgReg('year','y_months','block','Sessions per month','How many sessions you trained in each month of the year.',false,function(c){
+  var n=[0,0,0,0,0,0,0,0,0,0,0,0];
+  c.list.forEach(function(s){n[parse(s.date).getMonth()]++;});
+  var W=c.W,H=150,m={l:28,r:6,t:16,b:22},pw=W-m.l-m.r,ph=H-m.t-m.b,max=Math.max(4,Math.max.apply(null,n)),bw=pw/12;
+  var out='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Sessions per month in '+c.yr+'">';
+  [0,max/2,max].forEach(function(v){var y=m.t+ph-ph*v/max;out+='<line x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+y+'" y2="'+y+'" style="stroke:var(--line2)"/><text x="'+(m.l-6)+'" y="'+(y+4)+'" text-anchor="end">'+Math.round(v)+'</text>';});
+  n.forEach(function(v,i){
+    var x=m.l+i*bw,h=v/max*ph;
+    out+='<text x="'+(x+bw/2)+'" y="'+(H-6)+'" text-anchor="middle">'+MON[i]+'</text>';
+    if(v>0)out+='<rect x="'+(x+bw*0.15)+'" y="'+(m.t+ph-h)+'" width="'+(bw*0.7)+'" height="'+h+'" rx="2" style="fill:var(--c-lowerA)" data-tip="'+ta(MON[i]+' '+c.yr+'\n'+v+(v===1?' session':' sessions'))+'"/>';
+  });
+  return '<div class="bhead"><h3 class="sechead">Sessions per month</h3></div>'+out+'</svg>';});
+wgReg('year','y_top','block','Most-trained exercises','The exercises you have logged in the most sessions this year.',false,function(c){
+  var rows=c.keys.map(function(k){return {label:c.stats[k].name,val:c.stats[k].pts.length};}).sort(function(a,b){return b.val-a.val;}).slice(0,8)
+    .map(function(r){return {label:r.label,val:r.val,text:r.val+(r.val===1?' session':' sessions')};});
+  return '<div class="bhead"><h3 class="sechead">Most-trained exercises</h3></div>'+(rows.length?wgBars(rows):'<div class="muted wgnone">Log some sessions to see your most-trained exercises.</div>');});
+
 function yearClick(e){
   var b=e.target.closest('[data-act]');if(!b)return;
   if(b.dataset.act==='yr-prev'){S.year--;renderYear();}

@@ -74,6 +74,11 @@ function renderGuide(){
       'A solid session is one you logged. A dashed one is planned for that day: tap it to start.',
       'The totals at the top compare your volume with the week before. Volume is weight × reps added up over every set.'
     ])+
+    guideSection('Customising Weeks and Year',[
+      'Tap <b>Customise</b> at the top of Weeks or Year. Each block gets <b>↑ ↓</b> arrows to move it and <b>×</b> to hide it.',
+      'The <b>Add a block</b> list at the top shows everything you have hidden or not tried yet: total reps, training days, average session, personal records, heaviest set, muscle groups, week streak, sessions per month and more.',
+      '<b>Reset to default</b> brings back the original layout. Your layout is saved to your account, and your logs are never touched.'
+    ])+
     guideSection('Year',[
       'Until you log a session you see an example with made-up numbers. It is replaced by your own as soon as you log one.',
       '<b>Training days</b> shows every day you trained, coloured by session. <b>Weekly volume</b> shows how much you lifted each week.',

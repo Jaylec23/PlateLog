@@ -11,8 +11,9 @@ Every update has a version number and a name. Use the name when you want somethi
 | v1.4 | island-and-example-week | Space for the iPhone Dynamic Island, example week on the Weeks tab until real data exists |
 | v1.5 | themes | Appearance sheet: light/dark/auto, six looks, four session colour sets, accent colour, reset. Saved per device and synced to the account |
 | v1.5.1 | guest-button | "Continue as guest" is now a full-width button on the sign-in and create-account screen |
+| v1.6 | widgets | Customise button on Weeks and Year: add, remove, reorder and reset blocks, saved to the account. 13 new blocks (total reps, training days, average session, personal records, heaviest set, muscle groups, week streak, sessions per month, most-trained exercises) |
 
-Planned: v1.6 widgets (add, remove and reorder the tiles and charts on Weeks and Year).
+Planned: v1.7 block options (choose the exercise or time range for a block, rename it, make a tile wide).
 
 ## Where the old versions are kept
 
@@ -26,4 +27,4 @@ Every released version is saved on GitHub as its own branch, named `backup/<vers
 
 ## Your data and rollbacks
 
-Logs are stored in kg and every version keeps reading the older data formats. Settings saved by a newer version (such as the look from v1.5) are simply ignored by an older one, so rolling back never loses logs.
+Logs are stored in kg and every version keeps reading the older data formats. Settings saved by a newer version (the look from v1.5, the block layout from v1.6) are ignored by an older one and go back to default if you save there, so rolling back never loses logs.

@@ -165,6 +165,9 @@ check('session stored',!!(JSON.parse(localStorage.getItem('FAKE_DB')||'{}').sess
 check('rows belong to the user',docs().every(function(d){return d.user_id==='u-0';}),'');
 click($('#themeOpen'));await sleep(50);
 click($('[data-th="look"][data-v="forest"]'));await sleep(2000);
+tab('weeks');await sleep(100);
+click($('#panel-weeks [data-wg-act="edit"]'));click($('#panel-weeks [data-wg="w_sets"] [data-wg-act="remove"]'));await sleep(2000);
+check('block layout saved to the account config',docs().some(function(d){return d.data&&d.data.layout&&d.data.layout.weeks&&d.data.layout.weeks.indexOf('w_sets')<0;}),JSON.stringify(docs().map(function(d){return d.data&&d.data.layout;})));
 check('look saved to the account config',docs().some(function(d){return d.data&&d.data.theme&&d.data.theme.look==='forest';}),JSON.stringify(docs().map(function(d){return d.data&&d.data.theme;})));
 '''
 
@@ -301,6 +304,69 @@ check('sheet shows the saved choices',$('[data-th="look"][data-v="mono"]').getAt
 click($('[data-th-reset]'));await sleep(80);
 check('reset clears every colour override',!root.getAttribute('style')&&!root.getAttribute('data-theme'),root.getAttribute('style')||'');
 check('reset selects the defaults',$('[data-th="look"][data-v="plate"]').getAttribute('aria-pressed')==='true','');
+"""
+
+DRIVERS['widgets'] = r"""
+var ids=function(p){return $$('#panel-'+p+' [data-wg]').map(function(e){return e.dataset.wg;}).join(',');};
+typeIn($('#w-0-0'),'100');typeIn($('#r-0-0'),'5');typeIn($('#w-0-1'),'100');typeIn($('#r-0-1'),'5');await sleep(1300);
+tab('weeks');await sleep(100);
+check('Weeks has a Customise button',!!$('#panel-weeks [data-wg-act="edit"]'),'');
+check('Weeks starts with the 3 usual tiles',$$('#panel-weeks .tile').length===3&&!!$('#panel-weeks .strip')&&!!$('#panel-weeks .wsess'),'');
+click($('#panel-weeks [data-wg-act="edit"]'));await sleep(80);
+check('edit bar and add list appear',!!$('#panel-weeks .wgbar.editing')&&$$('#panel-weeks [data-wg-act="add"]').length===6,String($$('#panel-weeks [data-wg-act="add"]').length));
+check('every shown block has controls',$$('#panel-weeks .wgctl').length===5,String($$('#panel-weeks .wgctl').length));
+check('first block cannot move up',$('#panel-weeks [data-wg="w_sessions"] [data-wg-act="up"]').disabled===true,'');
+click($('#panel-weeks [data-wg-act="add"][data-id="w_reps"]'));await sleep(80);
+click($('#panel-weeks [data-wg-act="add"][data-id="w_heavy"]'));await sleep(80);
+click($('#panel-weeks [data-wg-act="add"][data-id="w_split"]'));await sleep(80);
+check('new tiles join the tile row, blocks go last',ids('weeks')==='w_sessions,w_sets,w_volume,w_reps,w_heavy,w_strip,w_cards,w_split',ids('weeks'));
+check('Total reps tile counts reps',$('#panel-weeks [data-wg="w_reps"] .v').textContent==='10',$('#panel-weeks [data-wg="w_reps"] .v').textContent);
+check('Heaviest set tile',/100/.test($('#panel-weeks [data-wg="w_heavy"] .v').textContent)&&/Bench press/.test($('#panel-weeks [data-wg="w_heavy"] .d').textContent),$('#panel-weeks [data-wg="w_heavy"]').textContent);
+check('Muscle groups groups the work',/Chest/.test($('#panel-weeks [data-wg="w_split"]').textContent),$('#panel-weeks [data-wg="w_split"]').textContent);
+check('added items leave the add list',!$('#panel-weeks [data-wg-act="add"][data-id="w_reps"]'),'');
+click($('#panel-weeks [data-wg="w_split"] [data-wg-act="up"]'));await sleep(80);
+check('move up swaps order',ids('weeks')==='w_sessions,w_sets,w_volume,w_reps,w_heavy,w_strip,w_split,w_cards',ids('weeks'));
+click($('#panel-weeks [data-wg="w_cards"] [data-wg-act="remove"]'));await sleep(80);
+check('remove hides the block',ids('weeks')==='w_sessions,w_sets,w_volume,w_reps,w_heavy,w_strip,w_split'&&!!$('#panel-weeks [data-wg-act="add"][data-id="w_cards"]'),ids('weeks'));
+await sleep(1200);
+check('layout saved to config',cfg()&&cfg().layout&&cfg().layout.weeks&&cfg().layout.weeks.join(',')==='w_sessions,w_sets,w_volume,w_reps,w_heavy,w_strip,w_split',JSON.stringify(cfg()&&cfg().layout));
+click($('#panel-weeks [data-wg-act="done"]'));await sleep(80);
+check('Done leaves edit mode and keeps the layout',!$('#panel-weeks .wgbar.editing')&&$$('#panel-weeks .tile').length===5&&!$('#panel-weeks .wsess'),'');
+tab('year');await sleep(150);
+check('Year starts with the usual blocks',$$('#panel-year .tiles')[0].querySelectorAll('.tile').length===3&&!!$('#panel-year #exsel'),'');
+click($('#panel-year [data-wg-act="edit"]'));await sleep(80);
+check('Year add list offers 7 new blocks',$$('#panel-year [data-wg-act="add"]').length===7,String($$('#panel-year [data-wg-act="add"]').length));
+['y_wstreak','y_prs','y_months','y_top'].forEach(function(id){click($('#panel-year [data-wg-act="add"][data-id="'+id+'"]'));});
+await sleep(100);
+check('Year blocks added',ids('year')==='y_sessions,y_sets,y_volume,y_wstreak,y_prs,y_heat,y_vol,y_strength,y_records,y_months,y_top',ids('year'));
+check('Week streak counts this week',/1 week/.test($('#panel-year [data-wg="y_wstreak"] .v').textContent),$('#panel-year [data-wg="y_wstreak"] .v').textContent);
+check('Sessions per month draws bars',$$('#panel-year [data-wg="y_months"] rect[data-tip]').length===1,String($$('#panel-year [data-wg="y_months"] rect[data-tip]').length));
+check('Most-trained lists exercises',/Bench press/.test($('#panel-year [data-wg="y_top"]').textContent),'');
+click($('#panel-year [data-wg="y_heat"] [data-wg-act="remove"]'));await sleep(1300);
+click($('#panel-year [data-wg-act="done"]'));await sleep(80);
+check('Year layout saved',cfg()&&cfg().layout&&cfg().layout.year&&cfg().layout.year.indexOf('y_heat')<0&&cfg().layout.year.indexOf('y_top')>=0,JSON.stringify(cfg()&&cfg().layout));
+check('removed Year block is gone',!$('#panel-year svg[aria-label^="Training days"]'),'');
+check('Weeks layout unaffected by Year edits',cfg().layout.weeks.length===7,'');
+"""
+
+DRIVERS['widgets2'] = r"""
+var ids=function(p){return $$('#panel-'+p+' [data-wg]').map(function(e){return e.dataset.wg;}).join(',');};
+tab('weeks');await sleep(150);
+check('Weeks layout survives a reload',$$('#panel-weeks .tile').length===5&&!$('#panel-weeks .wsess')&&!!$('#panel-weeks .strip'),'');
+click($('#panel-weeks [data-wg-act="edit"]'));await sleep(80);
+check('edit mode lists the saved blocks',ids('weeks')==='w_sessions,w_sets,w_volume,w_reps,w_heavy,w_strip,w_split',ids('weeks'));
+for(var k=0;k<7;k++){var b=$('#panel-weeks [data-wg-act="remove"]');if(b){click(b);await sleep(30);}}
+check('removing everything shows all blocks as addable',$$('#panel-weeks [data-wg-act="add"]').length===11,String($$('#panel-weeks [data-wg-act="add"]').length));
+click($('#panel-weeks [data-wg-act="done"]'));await sleep(80);
+check('an empty page explains itself',/Customise/.test(txt('#panel-weeks .empty')),txt('#panel-weeks .empty'));
+click($('#panel-weeks [data-wg-act="edit"]'));await sleep(50);
+click($('#panel-weeks [data-wg-act="reset"]'));await sleep(1300);
+check('Reset restores the default blocks',ids('weeks')==='w_sessions,w_sets,w_volume,w_strip,w_cards',ids('weeks'));
+check('Reset clears the saved layout',!(cfg()&&cfg().layout&&cfg().layout.weeks),JSON.stringify(cfg()&&cfg().layout));
+click($('#panel-weeks [data-wg-act="done"]'));await sleep(50);
+tab('log');await sleep(50);
+tab('weeks');await sleep(80);
+check('leaving a page ends edit mode',!$('#panel-weeks .wgbar.editing'),'');
 """
 
 DRIVERS['guide'] = r"""
@@ -457,7 +523,7 @@ check('banner stays gone after a reload',$('#install').hidden===true,'');
 PLAN = [('local_a', 'local', 'L'), ('local_b', 'local', 'L'), ('legacy', 'legacy', 'G'),
         ('cloud_signup', 'cloud', 'C'), ('cloud_reload', 'cloud', 'C'), ('cloud_bad', 'cloud', 'C'),
         ('cloud_local', 'cloud', 'D'), ('cloud_local2', 'cloud', 'D'),
-        ('units', 'local', 'U'), ('units2', 'local', 'U'), ('theme', 'local', 'T'), ('theme2', 'local', 'T'), ('guide', 'local', 'L2'), ('accordion', 'local', 'A'), ('install', 'local', 'I'), ('install2', 'local', 'I'), ('phone', 'local', 'P', 390), ('wide', 'local', 'P2', 900)]
+        ('units', 'local', 'U'), ('units2', 'local', 'U'), ('theme', 'local', 'T'), ('theme2', 'local', 'T'), ('widgets', 'local', 'W'), ('widgets2', 'local', 'W'), ('guide', 'local', 'L2'), ('accordion', 'local', 'A'), ('install', 'local', 'I'), ('install2', 'local', 'I'), ('phone', 'local', 'P', 390), ('wide', 'local', 'P2', 900)]
 # cloud_local needs a fresh profile with nobody signed in: profile D starts empty, so the sign-in screen appears.
 
 

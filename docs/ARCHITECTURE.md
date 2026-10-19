@@ -21,7 +21,7 @@ tests/run_tests.py    browser tests (Chrome headless + mock Supabase)
 Classic `<script>` tags, not modules. Every file shares ONE global scope, so functions call each other by bare name. This keeps it working when opened from disk and needs no tooling.
 Load order is fixed in `index.html` and matters:
 
-`theme.js` (in `<head>`) > `config.js` > `cloud.js` > `data.js` > `util.js` > `state.js` > `storage.js` > `log.js` > `weeks.js` > `year.js` > `people.js` > `plan.js` > `installart.js` > `guide.js` > `export.js` > `main.js`
+`theme.js` (in `<head>`) > `config.js` > `cloud.js` > `data.js` > `util.js` > `state.js` > `storage.js` > `log.js` > `widgets.js` > `weeks.js` > `year.js` > `people.js` > `plan.js` > `installart.js` > `guide.js` > `export.js` > `main.js`
 
 Rules that follow from this:
 - A file may call functions from later files at run time (inside functions), but must not call them while loading.
@@ -41,13 +41,14 @@ Rules that follow from this:
 | `js/year.js` | Year tab charts (heatmap, weekly volume, e1RM line), records, tooltip, example data. |
 | `js/people.js` | People bar: add, rename, remove, switch person. |
 | `js/plan.js` | Plan tab: split dropdown, day accordions, exercise search, custom days. |
+| `js/widgets.js` | Framework for customisable blocks on Weeks and Year: `wgReg(page,id,kind,title,desc,isDefault,render)` registers a block (kind `tile`, `block` or `plain`), `wgBlocks`/`wgBar` draw a page, `wgClick` handles Customise, add, remove, move and reset. The chosen order is `S.cfg.layout = {weeks:[ids], year:[ids]}`; a page with no saved list shows the blocks flagged as default. The blocks themselves are registered at the bottom of `weeks.js` and `year.js`. To add a block, add one `wgReg` call there. Loaded before `weeks.js`. |
 | `js/theme.js` | Appearance: mode, look, session colours, accent. Loaded in `<head>` (before the styles finish) so the saved look is applied before first paint. Applies choices as inline CSS variables on `<html>` (nothing is applied for the default look, so `base.css` stays the source of the defaults), remembers them in `localStorage` key `platelog.theme`, and also holds the Appearance sheet's rendering. The account config doc carries the same object as `theme`. Buttons and selected states use `--accent` / `--on-accent`, which default to the text and background colours. |
 | `js/installart.js` | Inline SVG phone drawings for the home-screen install steps (iPhone and Android, 4 steps each). They are simplified illustrations, not real screenshots, and can be swapped for real images later. |
 | `js/guide.js` | Guide tab: plain how-to text (no saved data), the install section, and the install banner on the main screen. The banner (`#install` in `index.html`) shows only on touch devices not already running as an installed app, until dismissed. Dismissal is stored per device in `localStorage` key `platelog.hideInstall`. "Show me how" opens the Guide's install section. |
 | `js/export.js` | CSV export, in the selected unit. |
 | `js/main.js` | `setTab`, `renderActive`, event wiring, start-up, the top-right account menu (`toggleMenu`) and the kg/lb switch under it (`setUnit`). |
 | `styles/base.css` | Colour tokens (light/dark), layout, header, tabs, shared controls. |
-| `styles/theme.css` (Appearance sheet), `styles/log.css` `weeks.css` `year.css` `plan.css` `people.css` `guide.css` | Styles for the matching area. Each holds its own phone (`max-width:560px`) layout. |
+| `styles/widgets.css` (Customise controls), `styles/theme.css` (Appearance sheet), `styles/log.css` `weeks.css` `year.css` `plan.css` `people.css` `guide.css` | Styles for the matching area. Each holds its own phone (`max-width:560px`) layout. |
 | `styles/auth.css` | Sign-in screen and the top-right account menu / status dot. |
 
 ## Data model

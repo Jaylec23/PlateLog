@@ -4,7 +4,7 @@
 /* ---------- tabs / render ---------- */
 var TABS=['log','weeks','year','plan','guide'];
 function setTab(t){
-  S.tab=t;try{history.replaceState(null,'','#'+t);}catch(e){}
+  S.tab=t;S.wgEdit=null;try{history.replaceState(null,'','#'+t);}catch(e){}
   /* an untouched session picks up any plan edits made since it was built */
   if(t==='log'&&S.draft&&!S.dirty&&!hasContent(S.draft.doc))loadDraft();
   renderActive();
@@ -88,8 +88,8 @@ pe.addEventListener('keydown',function(e){
     else if(e.key==='Escape'){S.pUI=null;renderPeople();}
   }
 });
-$('#panel-weeks').addEventListener('click',weeksClick);
-$('#panel-year').addEventListener('click',yearClick);
+$('#panel-weeks').addEventListener('click',function(e){wgClick('weeks',e);weeksClick(e);});
+$('#panel-year').addEventListener('click',function(e){wgClick('year',e);yearClick(e);});
 $('#panel-year').addEventListener('change',function(e){if(e.target.id==='exsel'){S.exSel=e.target.value;renderYear();}});
 $('#exportBtn').addEventListener('click',exportCsv);
 $('#install').addEventListener('click',installClick);

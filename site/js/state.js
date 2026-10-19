@@ -47,6 +47,7 @@ function normCfg(c){
   out.unit=(c&&(c.unit==='lb'||c.unit==='kg'))?c.unit:UNIT;
   setUnitQuiet(out.unit);
   /* so does the look; an account with no saved look keeps whatever this device already uses */
+  out.layout=wgNormLayout(c&&c.layout);
   out.theme=thNorm(c&&c.theme?c.theme:TH);
   thAdopt(out.theme);
   if(c&&c.plans&&typeof c.plans==='object'){
